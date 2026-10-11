@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Đánh dấu · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .item { grid-template-columns: 32px minmax(0, 1fr) auto; }
+    .item.edit { grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1.4fr) auto; }
+    .item .field { padding: 6px 9px; }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">書籤</span>
+    <div class="kicker">Thẻ đánh dấu · Bát Quẻ Môn</div>
+    <h1>Đánh <em>dấu</em></h1>
+    <p class="motto">«Ghi lại điều quý — kẻo gió cuốn đi»</p>
+  </header>
+  <main class="wrap mgr">
+    <section class="card card--corner">
+      <div class="mgr-bar">
+        <input class="field" id="q" type="search" placeholder="Tìm đánh dấu…">
+        <button class="btn btn--sm btn--ghost" id="export" title="Lưu danh sách đánh dấu thành tệp JSON">⤓ Xuất</button>
+        <label class="btn btn--sm btn--ghost" title="Nhập từ tệp JSON đã xuất">⤒ Nhập<input type="file" id="import" accept=".json,application/json" hidden></label>
+      </div>
+      <form class="mgr-bar" id="add">
+        <input class="field" id="addUrl" placeholder="Thêm địa chỉ… (https://…)" required>
+        <input class="field" id="addTitle" placeholder="Tên hiển thị (không bắt buộc)">
+        <button class="btn btn--sm">＋ Thêm</button>
+      </form>
+      <p class="small muted">Các đánh dấu hiện trên thanh <b>Bát Quẻ Môn</b> theo đúng thứ tự dưới đây. Dùng ▲ ▼ để sắp xếp.</p>
+      <div class="list mt" id="list"></div>
+    </section>
+  </main>
+  <script>
+    const { $, h, api } = UI;
+    let list = [], editing = null;
+    async function load() { list = await api('bookmarks'); render(); }
+    const run = (body) => api('bookmarks', null, body).then((r) => { list = r; render(); }).catch((e) => UI.toast(e.message));
+    const normUrl = (u) => (/^[a-z]+:\/\//i.test(u.trim()) ? u.trim() : 'https://' + u.trim());
+    function render() {
+      const L = $('#list'), q = $('#q').value.toLowerCase(); L.innerHTML = '';
+      const shown = list.filter((b) => !q || (b.title + ' ' + b.url).toLowerCase().includes(q));
+      if (!shown.length) { L.append(h('div', { class: 'empty' }, h('span', { class: 'k' }, '☆'), q ? 'Không có đánh dấu khớp.' : 'Chưa có đánh dấu. Bấm ☆ trên thanh địa chỉ (Ctrl+D) để thêm.')); return; }
+      shown.forEach((b) => {
+        const i = list.indexOf(b);
+        if (editing === b.id) {
+          const t = h('input', { class: 'field', value: b.title, 'aria-label': 'Tên' }), u = h('input', { class: 'field', value: b.url, 'aria-label': 'Địa chỉ' });
+          const save = () => { editing = null; run({ action: 'update', id: b.id, title: t.value.trim() || b.url, url: normUrl(u.value) }); };
+          [t, u].forEach((x) => x.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { editing = null; render(); } }));
+          L.append(h('div', { class: 'item edit' }, UI.siteIcon(b.url, b.title), t, u,
+            h('div', { class: 'acts', style: 'opacity:1' }, h('button', { class: 'ibtn', title: 'Lưu (Enter)', onclick: save }, '✓'), h('button', { class: 'ibtn', title: 'Hủy (Esc)', onclick: () => { editing = null; render(); } }, '↶'))));
+          setTimeout(() => t.focus(), 0);
+          return;
+        }
+        L.append(h('div', { class: 'item' }, UI.siteIcon(b.url, b.title),
+          h('a', { href: b.url, title: b.url, style: 'min-width:0;text-decoration:none' }, h('div', { class: 't' }, b.title || b.url), h('div', { class: 'u' }, b.url.replace(/^https?:\/\//, ''))),
+          h('div', { class: 'acts' },
+            h('button', { class: 'ibtn', title: 'Lên', disabled: i === 0 || null, onclick: () => run({ action: 'move', id: b.id, delta: -1 }) }, '▲'),
+            h('button', { class: 'ibtn', title: 'Xuống', disabled: i === list.length - 1 || null, onclick: () => run({ action: 'move', id: b.id, delta: 1 }) }, '▼'),
+            h('button', { class: 'ibtn', title: 'Sửa', onclick: () => { editing = b.id; render(); } }, '✎'),
+            h('button', { class: 'ibtn', title: 'Xóa', onclick: () => run({ action: 'remove', id: b.id }) }, '✕'))));
+      });
+    }
+    $('#q').addEventListener('input', render);
+    $('#add').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const url = normUrl($('#addUrl').value);
+      run({ action: 'add', url, title: $('#addTitle').value.trim() || UI.hostOf(url) }).then(() => { $('#addUrl').value = ''; $('#addTitle').value = ''; });
+    });
+    $('#export').onclick = () => {
+      const blob = new Blob([JSON.stringify({ app: 'Vân Quẻ', type: 'bookmarks', exported: new Date().toISOString(), bookmarks: list }, null, 2)], { type: 'application/json' });
+      const a = h('a', { href: URL.createObjectURL(blob), download: `van-que-danh-dau-${new Date().toISOString().slice(0, 10)}.json` }); a.click();
+    };
+    $('#import').onchange = async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        const data = JSON.parse(await f.text()), arr = Array.isArray(data) ? data : data.bookmarks || [];
+        let n = 0;
+        for (const b of arr) if (b && typeof b.url === 'string' && !list.some((x) => x.url === b.url)) { list = await api('bookmarks', null, { action: 'add', url: b.url, title: b.title || b.url }); n++; }
+        render(); UI.toast(`Đã nhập ${n} đánh dấu`);
+      } catch (err) { UI.toast('Tệp không hợp lệ: ' + err.message); }
+      e.target.value = '';
+    };
+    UI.onStore((what) => { if (what === 'bookmarks' && !editing) load(); });
+    load();
+  </script>
+</body>
+</html>

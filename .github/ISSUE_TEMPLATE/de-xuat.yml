@@ -1,0 +1,14 @@
+name: Đề xuất tính năng
+description: Ý tưởng mới cho trình duyệt hoặc phân hệ lý số
+labels: [de-xuat]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Bạn muốn làm gì mà hiện chưa làm được?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Ý tưởng

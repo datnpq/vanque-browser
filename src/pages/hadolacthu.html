@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Hà Đồ Lạc Thư · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    svg.dia { width: 100%; height: auto; max-width: 440px; display: block; margin: 0 auto; }
+    svg .w { fill: var(--vq-card); stroke: var(--vq-ink); stroke-width: 2; }
+    svg .b { fill: var(--vq-ink); }
+    svg .ln { stroke: var(--vq-line-strong); stroke-width: 1.5; }
+    svg .lbl { font-family: var(--font-display); font-size: 13px; fill: var(--vq-ink-soft); }
+    svg .path { stroke: var(--vq-son); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .cellhit { fill: transparent; cursor: pointer; }
+    .cellhit:hover { fill: color-mix(in srgb, var(--vq-gold) 14%, transparent); }
+    .pg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 360px; margin: 0 auto; }
+    .pg div { border: 1px solid var(--vq-line-strong); border-radius: 10px; padding: 10px 4px; text-align: center; background: var(--vq-bg); }
+    .pg b { font-family: var(--font-display); font-size: 30px; display: block; line-height: 1.1; }
+    .pg small { font-size: 11px; color: var(--vq-ink-soft); }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han left">河圖</span><span class="han">洛書</span>
+    <div class="kicker">Số trời · Tiên thiên – Hậu thiên · Cửu cung</div>
+    <h1>Hà Đồ <em>Lạc Thư</em></h1>
+    <p class="motto">«Hà xuất Đồ, Lạc xuất Thư, thánh nhân tắc chi»</p>
+  </header>
+  <main class="wrap">
+    <section class="grid g2">
+      <div class="card card--corner">
+        <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">HÀ<br>ĐỒ</span>
+          <div><h2>Hà Đồ — Thể</h2><p>Long mã đội Đồ · số sinh 1–5, số thành 6–10</p></div></div>
+        <svg class="dia" id="hado" viewBox="-200 -200 400 400"></svg>
+        <p class="small mt">«Thiên nhất sinh Thủy, Địa lục thành chi; Địa nhị sinh Hỏa, Thiên thất thành chi; Thiên tam sinh Mộc, Địa bát thành chi; Địa tứ sinh Kim, Thiên cửu thành chi; Thiên ngũ sinh Thổ, Địa thập thành chi.» Chấm trắng là số Dương (trời), chấm đen là số Âm (đất). Tổng = <b>55</b>.</p>
+      </div>
+      <div class="card card--corner">
+        <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">LẠC<br>THƯ</span>
+          <div><h2>Lạc Thư — Dụng</h2><p>Thần quy lưng mang Thư · ma phương 3×3</p></div></div>
+        <svg class="dia" id="lacthu" viewBox="-180 -180 360 360"></svg>
+        <div style="display:flex;gap:8px;justify-content:center" class="mt">
+          <button class="btn btn--sm" id="play">▶ Phi tinh 1 → 9</button>
+          <button class="btn btn--sm btn--ghost" id="tt">Đổi Tiên / Hậu Thiên</button>
+        </div>
+        <p class="small mt" id="lt-info">«Đới cửu lý nhất, tả tam hữu thất, nhị tứ vi kiên, lục bát vi túc, ngũ cư trung ương.» Mọi hàng, cột, chéo đều bằng <b>15</b>. Bấm vào một cung để xem chi tiết.</p>
+      </div>
+    </section>
+    <section class="grid g2 mt">
+      <div class="card">
+        <h3>Cửu tinh phi tinh theo năm</h3>
+        <div class="form mt" style="grid-template-columns:1fr auto;display:grid"><input class="field" type="number" id="yr" min="1900" max="2100"><button class="btn btn--sm" id="go">Xem</button></div>
+        <div class="pg mt" id="pg"></div>
+        <p class="small muted center mt" id="pgi"></p>
+      </div>
+      <div class="card">
+        <h3>Đối chiếu số – quái – hành</h3>
+        <table class="vq mt" id="tbl"><tr><th>Số</th><th>Hậu Thiên</th><th>Phương</th><th>Hành</th><th>Cửu tinh</th></tr></table>
+      </div>
+    </section>
+  </main>
+  <script>
+    const { $, h } = UI;
+    const dot = (x, y, odd, r = 7) => `<circle cx="${x}" cy="${y}" r="${r}" class="${odd ? 'w' : 'b'}"/>`;
+    const row = (n, cx, cy, vertical, odd, gap = 18) => {
+      let s = '', dots = [];
+      for (let i = 0; i < n; i++) { const o = (i - (n - 1) / 2) * gap; dots.push(vertical ? [cx, cy + o] : [cx + o, cy]); }
+      dots.forEach(([x, y], i) => { s += dot(x, y, odd); if (i) s += `<line class="ln" x1="${dots[i - 1][0]}" y1="${dots[i - 1][1]}" x2="${x}" y2="${y}"/>`; });
+      return s;
+    };
+    // Hà Đồ (Nam ở trên)
+    (function () {
+      let s = `<circle r="190" fill="none" class="ln" stroke-dasharray="3 6"/>`;
+      s += row(2, 0, -62, false, false) + row(7, 0, -112, false, true, 16);
+      s += row(1, 0, 62, false, true) + row(6, 0, 112, false, false, 16);
+      s += row(3, -62, 0, true, true) + row(8, -112, 0, true, false, 16);
+      s += row(4, 62, 0, true, false) + row(9, 112, 0, true, true, 16);
+      s += row(5, 0, -30, false, false, 14) + row(5, 0, 30, false, false, 14);
+      s += dot(0, 0, true) + dot(-14, 0, true) + dot(14, 0, true) + dot(0, -13, true, 5) + dot(0, 13, true, 5);
+      [['NAM · Hỏa', 0, -150], ['BẮC · Thủy', 0, 160], ['ĐÔNG · Mộc', -150, -128], ['TÂY · Kim', 150, -128]].forEach(([t, x, y]) => (s += `<text class="lbl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`));
+      $('#hado').innerHTML = s;
+    })();
+    // Lạc Thư
+    const POS = { 4: [-1, -1], 9: [0, -1], 2: [1, -1], 3: [-1, 0], 5: [0, 0], 7: [1, 0], 8: [-1, 1], 1: [0, 1], 6: [1, 1] };
+    const HAU = { 1: 'Khảm', 2: 'Khôn', 3: 'Chấn', 4: 'Tốn', 6: 'Càn', 7: 'Đoài', 8: 'Cấn', 9: 'Ly' };
+    const TIEN = { 9: 'Càn', 1: 'Khôn', 3: 'Ly', 7: 'Khảm', 4: 'Đoài', 8: 'Chấn', 2: 'Tốn', 6: 'Cấn' };
+    let tien = false;
+    function drawLac(pathN = 0) {
+      const C = 105; let s = '';
+      for (const [n, [cx, cy]] of Object.entries(POS)) {
+        const x = cx * C, y = cy * C, num = +n;
+        s += `<rect x="${x - 50}" y="${y - 50}" width="100" height="100" rx="10" fill="none" class="ln"/>`;
+        const r = num === 1 ? 0 : num <= 4 ? 14 : 24;
+        for (let i = 0; i < num; i++) { const a = (i / num) * Math.PI * 2 - Math.PI / 2; s += dot(x + r * Math.cos(a), y + r * Math.sin(a), num % 2 === 1, 6); }
+        if (num !== 5) {
+          const tri = VQ.TRIGRAM.find((t) => t.name === (tien ? TIEN[num] : HAU[num]));
+          s += `<text x="${x - 40}" y="${y - 34}" class="lbl" style="font-size:16px;fill:var(--vq-gold-strong)">${tri.sym}</text><text x="${x + 42}" y="${y + 44}" class="lbl" text-anchor="end">${tri.name}</text>`;
+        }
+        s += `<rect class="cellhit" data-n="${num}" x="${x - 50}" y="${y - 50}" width="100" height="100" rx="10"/>`;
+      }
+      if (pathN > 1) {
+        const pts = Array.from({ length: pathN }, (_, i) => POS[i + 1].map((v) => v * C).join(',')).join(' ');
+        s += `<polyline class="path" points="${pts}"/>`;
+        const [lx, ly] = POS[pathN].map((v) => v * C); s += `<circle cx="${lx}" cy="${ly}" r="9" fill="var(--vq-son)"/>`;
+      }
+      $('#lacthu').innerHTML = s;
+      $('#lacthu').querySelectorAll('.cellhit').forEach((el) => el.addEventListener('click', () => {
+        const n = +el.dataset.n;
+        $('#lt-info').innerHTML = n === 5 ? '<b>5 · Trung cung</b> — Thổ, hoàng cực, chủ tể bốn phương; Ngũ Hoàng Liêm Trinh.'
+          : `<b>${n} · ${HAU[n]}</b> (Hậu Thiên) — phương ${VQ.QUAI_HUONG[n]}, hành ${VQ.QUAI_HANH[n]}; Tiên Thiên tại đây là <b>${TIEN[n]}</b>; sao ${VQ.CUU_TINH[n]}. Đối cung ${10 - n} — cộng lại thành 10.`;
+      }));
+    }
+    drawLac();
+    let timer;
+    $('#play').onclick = () => { clearInterval(timer); let i = 1; timer = setInterval(() => { drawLac(++i); if (i >= 9) clearInterval(timer); }, 450); };
+    $('#tt').onclick = () => { tien = !tien; drawLac(); $('#tt').textContent = tien ? 'Đang: Tiên Thiên — đổi Hậu Thiên' : 'Đang: Hậu Thiên — đổi Tiên Thiên'; };
+    // Bảng
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((n) => $('#tbl').append(h('tr', {}, h('td', {}, h('b', {}, n)), h('td', {}, n === 5 ? 'Trung cung' : HAU[n]),
+      h('td', {}, n === 5 ? 'Trung' : VQ.QUAI_HUONG[n]), h('td', {}, UI.hanhSpan(n === 5 ? 'Thổ' : VQ.QUAI_HANH[n])), h('td', { class: 'small' }, VQ.CUU_TINH[n]))));
+    // Phi tinh
+    function phi() {
+      const y = +$('#yr').value, c = VQ.yearStar(y), map = VQ.phiTinh(c);
+      $('#pg').innerHTML = '';
+      [4, 9, 2, 3, 5, 7, 8, 1, 6].forEach((p) => {
+        const s = map[p];
+        $('#pg').append(h('div', { style: s === 5 || s === 2 ? 'border-color:var(--vq-son)' : [1, 6, 8, 9].includes(s) ? 'border-color:var(--vq-luc)' : '' },
+          h('small', {}, p === 5 ? 'Trung' : VQ.QUAI_HUONG[p]), h('b', {}, s), h('small', {}, VQ.CUU_TINH[s].split(' · ')[0])));
+      });
+      $('#pgi').textContent = `Năm ${y} (tính từ Lập Xuân): ${VQ.CUU_TINH[c]} nhập trung cung. Ngũ Hoàng (5) & Nhị Hắc (2) — nên tĩnh, tránh động thổ. Bát Bạch, Cửu Tử, Nhất Bạch — cát.`;
+    }
+    { const n = new Date(); $('#yr').value = VQ.solarYearAt(n.getDate(), n.getMonth() + 1, n.getFullYear()); }
+    $('#go').onclick = phi; $('#yr').addEventListener('keydown', (e) => { if (e.key === 'Enter') phi(); }); phi();
+  </script>
+</body>
+</html>

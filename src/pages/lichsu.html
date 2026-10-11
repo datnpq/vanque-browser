@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Lịch sử · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">往事</span>
+    <div class="kicker">Dấu chân đã qua</div>
+    <h1>Lịch <em>sử</em></h1>
+    <p class="motto">«Ôn cố tri tân — xét chuyện cũ để biết điều mới»</p>
+  </header>
+  <main class="wrap mgr">
+    <section class="card card--corner">
+      <div class="mgr-bar">
+        <input class="field" id="q" type="search" placeholder="Tìm trong lịch sử… (tiêu đề hoặc địa chỉ)" autofocus>
+        <select class="field" id="range" style="flex:0 0 auto;min-width:0;width:auto" aria-label="Khoảng thời gian cần xóa">
+          <option value="hour">1 giờ qua</option><option value="day">24 giờ qua</option><option value="week">7 ngày qua</option><option value="month">30 ngày qua</option><option value="all">Toàn bộ</option>
+        </select>
+        <button class="btn btn--sm btn--danger" id="clear">Xóa lịch sử</button>
+      </div>
+      <p class="small muted" id="info"></p>
+      <div class="list mt" id="list"></div>
+      <div class="center mt"><button class="btn btn--sm btn--ghost" id="more" hidden>Xem thêm</button></div>
+    </section>
+  </main>
+  <script>
+    const { $, h, api } = UI;
+    let items = [], oldest = Infinity, timer;
+    async function load(reset = true) {
+      if (reset) { items = []; oldest = Infinity; }
+      const r = await api('history', { q: $('#q').value, before: oldest === Infinity ? '' : oldest, limit: 200 });
+      items = items.concat(r.items);
+      if (r.items.length) oldest = r.items[r.items.length - 1].time;
+      $('#more').hidden = r.items.length < 200;
+      $('#info').textContent = $('#q').value ? `${items.length}${r.items.length < 200 ? '' : '+'} kết quả cho “${$('#q').value}”` : `Tổng cộng ${r.total} lượt ghé.`;
+      render();
+    }
+    function render() {
+      const L = $('#list'); L.innerHTML = '';
+      if (!items.length) { L.append(h('div', { class: 'empty' }, h('span', { class: 'k' }, '☷'), $('#q').value ? 'Không tìm thấy trang nào.' : 'Chưa có lịch sử. Khi bạn duyệt web, các trang đã xem sẽ hiện ở đây.')); return; }
+      let day = '';
+      items.forEach((it) => {
+        const d = UI.fmtDay(it.time);
+        if (d !== day) { day = d; L.append(h('div', { class: 'grp' }, d)); }
+        L.append(h('div', { class: 'item' },
+          h('span', { class: 'time' }, UI.fmtTime(it.time)), UI.siteIcon(it.url, it.title),
+          h('a', { href: it.url, title: it.url, style: 'min-width:0;text-decoration:none' }, h('div', { class: 't' }, it.title || it.url), h('div', { class: 'u' }, it.url.replace(/^https?:\/\//, ''))),
+          h('div', { class: 'acts' },
+            h('button', { class: 'ibtn', title: 'Xem mọi lượt ghé trang này', onclick: () => { $('#q').value = UI.hostOf(it.url); load(); } }, '⌕'),
+            h('button', { class: 'ibtn', title: 'Xóa mục này', onclick: async () => { await api('history', null, { action: 'delete', times: [it.time] }); items = items.filter((x) => x !== it); render(); } }, '✕'))));
+      });
+    }
+    $('#q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 200); });
+    $('#more').onclick = () => load(false);
+    $('#clear').onclick = async () => {
+      const label = $('#range').selectedOptions[0].textContent.toLowerCase();
+      if (!confirm(`Xóa lịch sử duyệt web trong ${label}? Không thể hoàn tác.`)) return;
+      await api('history', null, { action: 'clear', range: $('#range').value });
+      UI.toast('Đã xóa lịch sử ' + label); load();
+    };
+    load();
+  </script>
+</body>
+</html>

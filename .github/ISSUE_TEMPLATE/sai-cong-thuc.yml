@@ -1,0 +1,31 @@
+name: Sai công thức lý số
+description: An sao, tiết khí, can chi, thần sát… khác với nguồn bạn tin cậy
+labels: [ly-so]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: Phân hệ
+      options: [Tử Vi, Tử Bình, Kinh Dịch, Vạn Niên Lịch, Bát Trạch, Kỳ Môn Độn Giáp, Hà Đồ Lạc Thư, Khác]
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Dữ liệu nhập
+      description: Ngày giờ (dương hoặc âm lịch), giới tính. Có thể dùng một lá số mẫu thay cho lá số thật.
+    validations:
+      required: true
+  - type: textarea
+    id: diff
+    attributes:
+      label: Vân Quẻ cho ra / Đúng ra phải là
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Nguồn đối chiếu
+      description: Sách, phái, trang web hoặc phần mềm khác. Chỗ các phái không thống nhất, xin ghi rõ phái.
+    validations:
+      required: true

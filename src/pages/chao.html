@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Chào mừng · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    body { display: grid; min-height: 100vh; place-items: center; }
+    .welcome { width: min(640px, 100% - 32px); text-align: center; padding: 48px 0; }
+    .welcome .seal { width: 84px; height: 84px; font-size: 22px; transform: rotate(-6deg); }
+    .welcome h1 { font-size: clamp(40px, 7vw, 68px); font-weight: 800; margin-top: 22px; line-height: 1.05; }
+    .welcome h1 em { font-style: normal; color: var(--vq-son); }
+    .welcome .lead { color: var(--vq-ink-soft); font-size: 17px; margin: 14px auto 0; max-width: 520px; }
+    .welcome .card { margin-top: 30px; text-align: left; }
+    .welcome .card h2 { font-size: 20px; margin-bottom: 4px; }
+    .welcome .card > p { color: var(--vq-ink-soft); font-size: 14px; margin: 0 0 16px; }
+    .perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--vq-line); }
+    .perks div { font-size: 13px; color: var(--vq-ink-soft); }
+    .perks b { display: block; color: var(--vq-ink); font-size: 14px; margin-bottom: 2px; }
+    .perks span { color: var(--vq-gold-strong); margin-right: 4px; }
+    .later { margin-top: 22px; display: inline-flex; gap: 8px; align-items: center; background: none; border: 0; color: var(--vq-ink-soft); font: 600 15px/1 var(--font-sans); cursor: pointer; padding: 10px 14px; border-radius: 10px; }
+    .later:hover { color: var(--vq-ink); background: color-mix(in srgb, var(--vq-gold) 10%, transparent); }
+    .ok { display: none; margin-top: 14px; color: var(--vq-luc); font-weight: 600; }
+    @media (max-width: 620px) { .perks { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="welcome">
+    <span class="seal seal--fill">VÂN<br>QUẺ</span>
+    <h1>Chào mừng tới <em>Vân Quẻ</em></h1>
+    <p class="lead">Trình duyệt cho người yêu lý số — xem lá số của mình, gieo một quẻ, chọn một ngày đẹp, ngay trong thẻ mới.</p>
+
+    <section class="card card--corner">
+      <h2>Giữ lá số theo bạn ở mọi nơi</h2>
+      <p>Đăng nhập để lưu sổ lá số vào tài khoản tuvi.work. Không đăng nhập, Vân Quẻ vẫn dùng được đầy đủ và mọi thứ ở lại trên máy này.</p>
+      <div id="acct"></div>
+      <p class="ok" id="ok">✓ Đã nối tài khoản — đang vào Thiên Môn…</p>
+      <div class="perks">
+        <div><b><span>☰</span>Sổ lá số đồng bộ</b>Lá số lập trên Vân Quẻ hiện cả trên tuvi.work và app điện thoại.</div>
+        <div><b><span>☷</span>Một tài khoản</b>Dùng chung tài khoản tuvi.work; chưa có thì tạo mới bằng Google.</div>
+        <div><b><span>☲</span>Không bắt buộc</b>Có thể đăng nhập hoặc đăng xuất bất cứ lúc nào trong Cài đặt.</div>
+      </div>
+    </section>
+
+    <button class="later" id="later">Để sau, vào Thiên Môn →</button>
+  </main>
+  <script>
+    const { $, api } = UI;
+    const go = () => api('settings', null, { patch: { welcomed: true } }).catch(() => {}).finally(() => location.replace('start.html'));
+    UI.accountBox($('#acct'), { onSignedIn: () => { $('#ok').style.display = 'block'; setTimeout(go, 1600); } });
+    $('#later').onclick = go;
+  </script>
+</body>
+</html>

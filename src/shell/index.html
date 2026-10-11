@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: file: vanque:; font-src 'self'">
+  <title>Vân Quẻ</title>
+  <link rel="stylesheet" href="../fonts/fonts.css">
+  <link rel="stylesheet" href="shell.css">
+  <script>try { const t = localStorage.getItem('vq-theme-eff'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+  <!-- Ấn khai môn (splash) -->
+  <div id="splash" aria-hidden="true"><div class="sp-seal">VÂN<br>QUẺ</div><div class="sp-hao"><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i></div><div class="sp-motto">Vân khởi quẻ thành — Lý số tại tâm</div></div>
+
+  <header id="titlebar">
+    <button class="brand" id="brand" title="Vân Quẻ Browser — Thiên Môn"><span class="seal">VQ</span></button>
+    <div id="tabs" role="tablist" aria-label="Các thẻ"></div>
+    <button id="newtab" class="ico" title="Thẻ mới (Ctrl+T)" aria-label="Thẻ mới">＋</button>
+    <div class="drag"></div>
+    <div class="winctl">
+      <button data-w="min" title="Thu nhỏ" aria-label="Thu nhỏ">─</button>
+      <button data-w="max" title="Phóng to" aria-label="Phóng to">☐</button>
+      <button data-w="close" class="x" title="Đóng" aria-label="Đóng">✕</button>
+    </div>
+  </header>
+
+  <nav id="toolbar">
+    <button class="ico" id="back" title="Quay lại (Alt+←)" aria-label="Quay lại">❮</button>
+    <button class="ico" id="fwd" title="Tiến tới (Alt+→)" aria-label="Tiến tới">❯</button>
+    <button class="ico" id="reload" title="Tải lại (F5)" aria-label="Tải lại">↻</button>
+    <button class="ico" id="home" title="Thiên Môn (Alt+Home)" aria-label="Thiên Môn">⌂</button>
+    <form id="omni" autocomplete="off">
+      <span id="badge" class="badge">☯</span>
+      <input id="url" spellcheck="false" autocomplete="off" aria-label="Địa chỉ và tìm kiếm" placeholder="Nhập địa chỉ, tìm kiếm, hoặc vq:tuvi · vq:lich · vq:caidat…">
+      <button type="button" id="zoomPill" class="pill" hidden title="Bấm để đặt lại thu phóng (Ctrl+0)"></button>
+      <button type="button" id="star" class="ico sm" title="Đánh dấu trang (Ctrl+D)" aria-label="Đánh dấu">☆</button>
+      <div id="suggest" role="listbox"></div>
+    </form>
+    <button class="ico" id="dlBtn" hidden title="Tải xuống (Ctrl+J)" aria-label="Tải xuống"><svg viewBox="0 0 36 36" class="ring"><circle cx="18" cy="18" r="15"/><circle id="dlArc" cx="18" cy="18" r="15"/></svg><span>⤓</span></button>
+    <button class="ico" id="acctBtn" aria-label="Tài khoản tuvi.work"></button>
+    <button class="ico" id="theme" title="Sáng / Tối (Ctrl+Shift+D)" aria-label="Đổi giao diện">◐</button>
+    <button class="ico" id="menuBtn" title="Bát Quẻ Môn" aria-label="Menu">☰</button>
+  </nav>
+
+  <div id="bookmarks" role="toolbar" aria-label="Thanh đánh dấu"></div>
+  <div id="permbar" hidden></div>
+  <div id="findbar" hidden><input id="findq" placeholder="Tìm trong trang…" aria-label="Tìm trong trang"><span id="findn"></span><button class="ico sm" id="findp" title="Kết quả trước (Shift+Enter)">˄</button><button class="ico sm" id="findnx" title="Kết quả sau (Enter)">˅</button><button class="ico sm" id="findx" title="Đóng (Esc)">✕</button></div>
+
+  <main id="views"></main>
+
+  <footer id="status">
+    <span id="hover"></span>
+    <span class="spacer"></span>
+    <span id="thoi" title="Thiên thời hiện tại"></span>
+  </footer>
+
+  <div id="menu" class="pop" hidden></div>
+  <div id="tabmenu" class="pop" hidden></div>
+  <div id="dlpop" class="pop" hidden></div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <script src="keys.js"></script>
+  <script src="../pages/lib/lyso.js"></script>
+  <script src="shell.js"></script>
+</body>
+</html>

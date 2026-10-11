@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Bát Trạch Minh Cảnh · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .compass-wrap { display: grid; place-items: center; }
+    svg.compass { width: min(100%, 520px); height: auto; }
+    svg.compass text { font-family: var(--font-display); fill: var(--vq-ink); }
+    svg.compass .sec { stroke: var(--vq-line-strong); stroke-width: 1; transition: opacity .2s; cursor: pointer; }
+    svg.compass .sec:hover { opacity: .8; }
+    .kua { display: flex; align-items: center; gap: 18px; }
+    .kua .big { font-family: var(--font-han); font-size: 64px; color: var(--vq-gold-strong); line-height: 1; }
+    .dn td:first-child { font-family: var(--font-display); font-weight: 700; }
+    .ok { color: var(--vq-luc); } .ng { color: var(--vq-son); }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">八宅</span>
+    <div class="kicker">Bát Trạch Minh Cảnh · Phối mệnh – trạch</div>
+    <h1>Bát Trạch <em>Minh Cảnh</em></h1>
+    <p class="motto">«Phúc địa phúc nhân cư — người hợp nhà, nhà hợp người»</p>
+  </header>
+  <main class="wrap split">
+    <aside class="card card--corner">
+      <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">BÁT<br>TRẠCH</span>
+        <div><h2>Cung phi</h2><p>Năm sinh âm lịch & giới tính</p></div></div>
+      <form class="form" id="f">
+        <div><label class="lb">Năm sinh (âm lịch)</label><input class="field" type="number" id="y" min="1900" max="2100" value="1990"></div>
+        <div class="pill-group">
+          <input type="radio" name="gt" id="g1" checked><label for="g1">Nam</label>
+          <input type="radio" name="gt" id="g2"><label for="g2">Nữ</label>
+        </div>
+        <div><label class="lb">Nhà tọa (lưng nhà quay về)</label><select class="field" id="toa"></select></div>
+        <div class="pill-group">
+          <input type="radio" name="ori" id="o1" checked><label for="o1">Nam ở trên (cổ pháp)</label>
+          <input type="radio" name="ori" id="o2"><label for="o2">Bắc ở trên</label>
+        </div>
+        <label class="small"><input type="checkbox" id="phi"> Phủ Cửu tinh phi tinh năm nay</label>
+        <button class="btn">✦ Luận Bát Trạch</button>
+      </form>
+      <div id="kua" class="mt"></div>
+    </aside>
+    <section>
+      <div class="card compass-wrap"><svg class="compass" id="cp" viewBox="-260 -260 520 520"></svg><div class="small muted" id="hover">Rê chuột lên từng cung để xem chi tiết</div></div>
+      <div class="grid g2 mt">
+        <div class="card"><h3>Du niên bát biến — theo mệnh</h3><table class="vq dn mt" id="tbl"></table></div>
+        <div class="card"><h3>Phối nhà</h3><div id="house" class="mt"></div></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const { $, h } = UI;
+    const BEARING = { N: 0, NE: 45, E: 90, SE: 135, S: 180, SW: 225, W: 270, NW: 315 };
+    const OPP = { N: 'S', S: 'N', E: 'W', W: 'E', NE: 'SW', SW: 'NE', SE: 'NW', NW: 'SE' };
+    const p = UI.profile.get(); if (p) { $('#y').value = VQ.solar2lunar(p.day, p.month, p.year).year; if (p.gender === 'nu') $('#g2').checked = true; }
+    UI.fillSelect($('#toa'), VQ.HUONG_KEYS.map((k) => [k, `Tọa ${VQ.HUONG_VN[k]} — hướng ${VQ.HUONG_VN[OPP[k]]} (${VQ.QUAI[VQ.HUONG_QUAI[k]]} trạch)`]), 'N');
+
+    const arc = (r1, r2, a0, a1) => {
+      const P = (r, a) => [r * Math.sin(a * Math.PI / 180), -r * Math.cos(a * Math.PI / 180)].map((v) => v.toFixed(2));
+      const [x1, y1] = P(r2, a0), [x2, y2] = P(r2, a1), [x3, y3] = P(r1, a1), [x4, y4] = P(r1, a0);
+      return `M${x1},${y1} A${r2},${r2} 0 0 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 0 0 ${x4},${y4}Z`;
+    };
+    function build() {
+      const year = +$('#y').value, gender = $('#g2').checked ? 'nu' : 'nam';
+      const k = VQ.cungPhi(year, gender), bt = VQ.batTrach(k.so), rot = $('#o1').checked ? 180 : 0;
+      const toa = $('#toa').value, houseK = VQ.HUONG_QUAI[toa], houseGroup = [1, 3, 4, 9].includes(houseK) ? 'Đông Tứ Trạch' : 'Tây Tứ Trạch';
+      const nowD = new Date(), phiYear = VQ.solarYearAt(nowD.getDate(), nowD.getMonth() + 1, nowD.getFullYear());
+      const phi = $('#phi').checked ? VQ.phiTinh(VQ.yearStar(phiYear)) : null;
+      $('#kua').innerHTML = '';
+      $('#kua').append(h('div', { class: 'kua' }, h('span', { class: 'big' }, VQ.TRIGRAM.find((t) => t.name === k.quai).sym),
+        h('div', {}, h('div', { style: 'font-family:var(--font-display);font-size:24px;font-weight:700' }, `Cung ${k.quai}`),
+          h('div', { class: 'muted' }, `${k.hanh} · ${k.nhom}`), h('div', { class: 'small muted' }, `Quái số ${k.raw}${k.raw === 5 ? ' → ký ' + k.so : ''} · Phục vị ${k.huong}`))));
+      // La bàn
+      const svg = $('#cp'); let s = '';
+      s += `<circle r="252" fill="var(--vq-card)" stroke="var(--vq-gold)" stroke-width="2"/><circle r="244" fill="none" stroke="var(--vq-gold)" stroke-dasharray="2 5"/>`;
+      bt.forEach((d) => {
+        const a = BEARING[d.dir] + rot, fill = d.good ? 'color-mix(in srgb, var(--vq-luc) ' + (d.name === 'Sinh Khí' ? 42 : 24) + '%, var(--vq-card))'
+          : 'color-mix(in srgb, var(--vq-son) ' + (/Tuyệt|Ngũ/.test(d.name) ? 40 : 20) + '%, var(--vq-card))';
+        s += `<path class="sec" data-dir="${d.dir}" d="${arc(78, 236, a - 22.5, a + 22.5)}" fill="${fill}"/>`;
+        const P = (r) => [r * Math.sin(a * Math.PI / 180), -r * Math.cos(a * Math.PI / 180)];
+        const [x1, y1] = P(168), [x4, y4] = P(108);
+        s += `<text x="${x1}" y="${y1 - 22}" text-anchor="middle" font-size="14" font-weight="700">${d.dirName}</text>`;
+        s += `<text x="${x1}" y="${y1 + 4}" text-anchor="middle" font-size="18" font-weight="800" style="fill:${d.good ? 'var(--vq-luc)' : 'var(--vq-son)'}">${d.name}</text>`;
+        s += `<text x="${x1}" y="${y1 + 24}" text-anchor="middle" font-size="12" style="fill:var(--vq-ink-soft)">${d.star}</text>`;
+        if (phi) { const st = phi[VQ.HUONG_QUAI[d.dir]]; s += `<circle cx="${x4}" cy="${y4}" r="14" fill="var(--vq-bg)" stroke="var(--vq-gold)"/><text x="${x4}" y="${y4 + 5}" text-anchor="middle" font-size="14" font-weight="700">${st}</text>`; }
+        if (d.dir === OPP[toa]) { const [xa, ya] = P(258); s += `<text x="${xa}" y="${ya + 5}" text-anchor="middle" font-size="22" style="fill:var(--vq-son)">⬤</text>`; }
+      });
+      s += `<circle r="76" fill="var(--vq-bg)" stroke="var(--vq-line-strong)"/>`;
+      s += `<text y="-8" text-anchor="middle" font-size="34" style="font-family:var(--font-han);fill:var(--vq-gold-strong)">${VQ.TRIGRAM.find((t) => t.name === k.quai).sym}</text>`;
+      s += `<text y="24" text-anchor="middle" font-size="15" font-weight="700">${k.quai} mệnh</text>`;
+      s += `<text y="44" text-anchor="middle" font-size="11" style="fill:var(--vq-ink-soft)">${phi ? 'Phi tinh ' + phiYear + ': ' + phi[5] : k.nhom}</text>`;
+      svg.innerHTML = s;
+      svg.querySelectorAll('.sec').forEach((el) => el.addEventListener('mouseenter', () => {
+        const d = bt.find((x) => x.dir === el.dataset.dir);
+        $('#hover').innerHTML = `<b>${d.dirName}</b> · ${d.name} (${d.star}) — ${d.desc}` + (phi ? ` · Phi tinh: ${VQ.CUU_TINH[phi[VQ.HUONG_QUAI[d.dir]]]}` : '');
+      }));
+      // Bảng
+      $('#tbl').innerHTML = '<tr><th>Du niên</th><th>Hướng</th><th>Ứng nghiệm</th></tr>';
+      bt.forEach((d) => $('#tbl').append(h('tr', {}, h('td', { class: d.good ? 'ok' : 'ng' }, d.name), h('td', {}, d.dirName), h('td', { class: 'small' }, d.desc))));
+      // Phối nhà
+      const door = bt.find((d) => d.dir === OPP[toa]), back = bt.find((d) => d.dir === toa);
+      const hop = k.nhom.split(' ')[0] === houseGroup.split(' ')[0];
+      const hb = VQ.batTrach(houseK);
+      $('#house').innerHTML = '';
+      $('#house').append(
+        h('p', {}, h('b', {}, `${VQ.QUAI[houseK]} trạch`), ` (${houseGroup}) — người ${k.nhom}: `, h('b', { class: hop ? 'ok' : 'ng' }, hop ? 'HỢP mệnh trạch ✦' : 'KHÔNG hợp mệnh trạch')),
+        h('p', {}, 'Hướng cửa ', h('b', {}, VQ.HUONG_VN[OPP[toa]]), ' với mệnh là ', h('b', { class: door.good ? 'ok' : 'ng' }, door.name), ` — ${door.desc}.`),
+        h('p', {}, 'Tọa ', h('b', {}, VQ.HUONG_VN[toa]), ' với mệnh là ', h('b', { class: back.good ? 'ok' : 'ng' }, back.name), '.'),
+        h('p', { class: 'small' }, h('b', {}, 'Cát phương của nhà: '), hb.filter((d) => d.good).map((d) => `${d.name} ${d.dirName}`).join(' · ')),
+        h('p', { class: 'note' }, hop ? 'Đặt bếp tọa hung hướng cát (lưng bếp ở Tuyệt Mệnh / Ngũ Quỷ, miệng bếp nhìn về Sinh Khí / Thiên Y). Giường, bàn làm việc quay về Sinh Khí / Diên Niên.'
+          : 'Nhà không hợp mệnh: dùng cửa phụ/cổng ở cát phương, đặt phòng ngủ, bếp, bàn thờ theo bốn cát phương của mệnh để hóa giải.'));
+    }
+    $('#f').addEventListener('submit', (e) => { e.preventDefault(); build(); });
+    document.querySelectorAll('#f input, #f select').forEach((el) => el.addEventListener('change', build));
+    build();
+  </script>
+</body>
+</html>

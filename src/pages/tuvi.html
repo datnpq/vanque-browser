@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Tử Vi Đẩu Số · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .chart { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(178px, auto)); gap: 0; border: 2px solid var(--vq-ink); background: var(--vq-card); position: relative; }
+    .cell { border: 1px solid var(--vq-line-strong); padding: 6px 7px 5px; position: relative; display: flex; flex-direction: column; font-size: 12px; cursor: pointer; transition: background .15s; min-width: 0; }
+    .cell:hover { background: color-mix(in srgb, var(--vq-gold) 6%, transparent); }
+    .cell.hl { background: color-mix(in srgb, var(--vq-gold) 13%, transparent); }
+    .cell.hl-main { background: color-mix(in srgb, var(--vq-son) 10%, transparent); box-shadow: inset 0 0 0 2px var(--vq-son); }
+    .cell .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; color: var(--vq-ink-soft); }
+    .cell .pname { text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 14.5px; letter-spacing: .06em; text-transform: uppercase; margin: 1px 0 3px; }
+    .cell .pname .than { font-size: 10px; background: var(--vq-cham); color: var(--vq-card); padding: 1px 5px; border-radius: 4px; margin-left: 4px; vertical-align: 2px; letter-spacing: 0; }
+    .cell .chinh { text-align: center; font-weight: 700; font-size: 13.5px; line-height: 1.3; min-height: 18px; }
+    .cell .chinh sup { font-size: 9px; font-weight: 500; color: var(--vq-ink-soft); margin-left: 1px; }
+    .cell .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-top: 3px; flex: 1; font-size: 10.5px; }
+    .cell .cols div { line-height: 1.22; }
+    .cell .luu { font-size: 10px; font-style: italic; color: var(--vq-cham); line-height: 1.25; margin-top: 3px; text-align: center; }
+    .cell .good { color: var(--vq-luc); } .cell .bad { color: var(--vq-ink-soft); text-align: right; }
+    .cell .hoa { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+    .cell .hoa span { font-size: 10px; padding: 0 5px; border-radius: 4px; background: var(--vq-son); color: var(--vq-card); }
+    .cell .hoa span.k { background: var(--vq-ink); }
+    .cell .hoa span.luu { background: transparent; color: var(--vq-son); box-shadow: inset 0 0 0 1px var(--vq-son); font-style: italic; }
+    .cell .hoa span.luu.k { color: var(--vq-ink); box-shadow: inset 0 0 0 1px var(--vq-ink); }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--vq-ink-soft); margin-top: 10px; align-items: center; }
+    .legend i { font-style: normal; font-weight: 700; }
+    .legend .chipx { font-size: 10.5px; padding: 0 6px; border-radius: 4px; }
+    .err { color: var(--vq-son); border-left-color: var(--vq-son); }
+    .cell .bot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--vq-ink-soft); margin-top: 4px; border-top: 1px dashed var(--vq-line); padding-top: 3px; }
+    .cell .tt { display: flex; gap: 3px; justify-content: center; margin-top: 3px; }
+    .cell .tt b { font-size: 9.5px; background: var(--vq-ink); color: var(--vq-bg); padding: 0 5px; border-radius: 3px; font-weight: 600; }
+    .cell .th { color: var(--vq-son); font-weight: 700; }
+    .center { grid-column: 2 / 4; grid-row: 2 / 4; border: 1px solid var(--vq-line-strong); padding: 18px 20px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+    .center::before { content: '紫微'; position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-han); font-size: 150px; font-weight: 900; color: var(--vq-gold); opacity: .07; }
+    .center h2 { font-size: 26px; }
+    .center table { margin: 10px auto 0; font-size: 13px; border-collapse: collapse; position: relative; }
+    .center td { padding: 2px 8px; text-align: left; }
+    .center td:first-child { color: var(--vq-ink-soft); text-align: right; }
+    .s-moc { color: var(--h-moc); } .s-hoa { color: var(--h-hoa); } .s-tho { color: var(--h-tho); } .s-kim { color: var(--h-kim); } .s-thuy { color: var(--h-thuy); }
+    @media print { .no-print, .foot, .page-head { display: none !important; } body { background: #fff; } .split { display: block; } }
+    .so-h { font-size: 17px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
+    .so-h small { font: 500 12px/1.3 var(--font-sans); color: var(--vq-ink-soft); text-align: right; }
+    .so-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; padding: 8px 6px; border-bottom: 1px dashed var(--vq-line); border-radius: 8px; cursor: pointer; }
+    .so-item:hover { background: color-mix(in srgb, var(--vq-gold) 9%, transparent); }
+    .so-item b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .so-item small { color: var(--vq-ink-soft); font-size: 12px; }
+    .so-item .cloud { color: var(--vq-luc); margin-left: 4px; font-size: 12px; }
+    .so-empty { font-size: 13px; color: var(--vq-ink-soft); margin: 0; }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">紫微</span>
+    <div class="kicker">Bắc phái · An sao lập số</div>
+    <h1>Tử Vi <em>Đẩu Số</em></h1>
+    <p class="motto">«Mệnh tốt không bằng vận tốt — vận tốt không bằng tâm tốt»</p>
+  </header>
+
+  <main class="wrap split">
+    <aside class="card card--corner no-print">
+      <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:12px">TỬ<br>VI</span>
+        <div><h2>Lập lá số</h2><p>Nhập giờ sinh — an sao 12 cung</p></div></div>
+      <form class="form" id="f">
+        <div><label class="lb">Danh hiệu</label><input class="field" id="name" placeholder="Họ và tên…" maxlength="50"></div>
+        <div class="pill-group">
+          <input type="radio" name="lich" id="l1" value="duong" checked><label for="l1">Dương lịch</label>
+          <input type="radio" name="lich" id="l2" value="am"><label for="l2">Âm lịch</label>
+        </div>
+        <div class="row"><select class="field" id="d"></select><select class="field" id="m"></select><select class="field" id="y"></select></div>
+        <label class="small muted" id="leapBox" hidden><input type="checkbox" id="leap"> Tháng nhuận</label>
+        <div><label class="lb">Giờ sinh</label><select class="field" id="hr"></select></div>
+        <div class="pill-group">
+          <input type="radio" name="gt" id="g1" value="nam" checked><label for="g1">Nam</label>
+          <input type="radio" name="gt" id="g2" value="nu"><label for="g2">Nữ</label>
+        </div>
+        <p class="note err" id="err" hidden></p>
+        <div><label class="lb">Năm xem hạn</label><input class="field" id="vy" type="number" min="1900" max="2100"></div>
+        <button class="btn">✦ Lập Lá Số</button>
+        <button class="btn btn--ghost" type="button" id="print">In / Lưu PDF</button>
+      </form>
+      <p class="note mt">Bấm vào một cung để xem <b>tam phương tứ chính</b> (tam hợp + xung chiếu).</p>
+      <div class="card mt no-print" id="so">
+        <h3 class="so-h">Sổ lá số <small id="soSub"></small></h3>
+        <div id="soList"></div>
+      </div>
+    </aside>
+
+    <section>
+      <div class="chart" id="chart"></div>
+      <div class="legend no-print">
+        <span>Chính tinh theo ngũ hành: <i class="s-moc">Mộc</i> · <i class="s-hoa">Hỏa</i> · <i class="s-tho">Thổ</i> · <i class="s-kim">Kim</i> · <i class="s-thuy">Thủy</i></span>
+        <span><i style="color:var(--vq-luc)">Cát tinh</i> (cột trái)</span><span><i>Hung tinh</i> (cột phải)</span>
+        <span><i style="color:var(--vq-cham);font-style:italic">Sao lưu niên</i></span>
+        <span><span class="chipx" style="background:var(--vq-son);color:var(--vq-card)">Tứ Hóa gốc</span> <span class="chipx" style="box-shadow:inset 0 0 0 1px var(--vq-son);color:var(--vq-son);font-style:italic">Hóa lưu niên</span></span>
+      </div>
+      <div class="card mt" id="luan"></div>
+    </section>
+  </main>
+
+  <script>
+    const { $, h } = UI;
+    const LAYOUT = { 5: [1, 1], 6: [1, 2], 7: [1, 3], 8: [1, 4], 4: [2, 1], 9: [2, 4], 3: [3, 1], 10: [3, 4], 2: [4, 1], 1: [4, 2], 0: [4, 3], 11: [4, 4] };
+    const STAR_HANH = { 'Tử Vi': 'tho', 'Thiên Cơ': 'moc', 'Thái Dương': 'hoa', 'Vũ Khúc': 'kim', 'Thiên Đồng': 'thuy', 'Liêm Trinh': 'hoa', 'Thiên Phủ': 'tho',
+      'Thái Âm': 'thuy', 'Tham Lang': 'thuy', 'Cự Môn': 'thuy', 'Thiên Tướng': 'thuy', 'Thiên Lương': 'moc', 'Thất Sát': 'kim', 'Phá Quân': 'thuy' };
+    const STAR_DESC = {
+      'Tử Vi': 'Đế tinh — uy quyền, tự trọng, có khả năng lãnh đạo; cần Tả Hữu, Xương Khúc phò tá.',
+      'Thiên Cơ': 'Mưu thần — thông minh, nhanh nhạy, giỏi tính toán, hay thay đổi.',
+      'Thái Dương': 'Mặt trời — quang minh, rộng rãi, hướng ngoại, quý hiển khi đắc địa ban ngày.',
+      'Vũ Khúc': 'Tài tinh — cương nghị, quyết đoán, giỏi tài chính, cô độc nhẹ.',
+      'Thiên Đồng': 'Phúc tinh — hiền hòa, an nhàn, lạc quan, thích hưởng thụ.',
+      'Liêm Trinh': 'Tù tinh — cá tính mạnh, nguyên tắc, chính trực hoặc đào hoa tùy cách.',
+      'Thiên Phủ': 'Kho trời — ổn trọng, giữ của giỏi, phúc hậu, có tài quản trị.',
+      'Thái Âm': 'Mặt trăng — dịu dàng, tinh tế, giàu cảm xúc, chủ điền sản.',
+      'Tham Lang': 'Đào hoa tinh — đa tài, đa dục, giỏi giao tế, ham học hỏi.',
+      'Cự Môn': 'Ám tinh — ăn nói sắc sảo, đa nghi, hợp nghề dùng miệng lưỡi.',
+      'Thiên Tướng': 'Ấn tinh — trọng nghĩa, phục vụ, công bằng, dễ được tin cậy.',
+      'Thiên Lương': 'Ấm tinh — nhân hậu, che chở, thích làm thầy, giải ách.',
+      'Thất Sát': 'Tướng tinh — dũng mãnh, độc lập, dám làm, thăng trầm lớn.',
+      'Phá Quân': 'Hao tinh — phá cũ dựng mới, mạo hiểm, không chịu gò bó.',
+    };
+    const THAI_TUE_RING = ['Thái Tuế', 'Thiếu Dương', 'Tang Môn', 'Thiếu Âm', 'Quan Phù', 'Tử Phù', 'Tuế Phá', 'Long Đức', 'Bạch Hổ', 'Phúc Đức', 'Điếu Khách', 'Trực Phù'];
+    const TT_DESC = { 'Thái Tuế': 'chính vị Thái Tuế, người có chính kiến, ngay thẳng, dễ va chạm lời ăn tiếng nói.', 'Thiếu Dương': 'thông minh, lanh lợi, hay được nâng đỡ.',
+      'Tang Môn': 'tâm tính hay lo nghĩ, dễ gặp chuyện buồn phiền.', 'Thiếu Âm': 'hiền hòa, nhạy cảm, được âm phù.', 'Quan Phù': 'cẩn trọng giấy tờ, pháp lý, thị phi.',
+      'Tử Phù': 'hay gặp chuyện tang tóc, lo âu nhỏ.', 'Tuế Phá': 'tính phá cách, thích thay đổi, dễ hao tổn.', 'Long Đức': 'phúc đức, gặp dữ hóa lành.',
+      'Bạch Hổ': 'cương cường, quyết liệt, đề phòng tai nạn, kiện tụng.', 'Phúc Đức': 'hưởng phúc, có quý nhân, tâm thiện.', 'Điếu Khách': 'hay nói, giao thiệp rộng, dễ thị phi.',
+      'Trực Phù': 'chính trực nhưng hay vướng lo toan, bệnh vặt.' };
+    const BR = { M: 'miếu', V: 'vượng', 'Đ': 'đắc', B: 'bình', H: 'hãm' };
+
+    const now = new Date(), prof = UI.profile.get();
+    UI.fillDate({ day: $('#d'), month: $('#m'), year: $('#y'), hour: $('#hr') }, prof || {});
+    $('#vy').value = now.getFullYear();
+    if (prof) { $('#name').value = prof.name || ''; $('#g' + (prof.gender === 'nu' ? 2 : 1)).checked = true; }
+    document.querySelectorAll('[name=lich]').forEach((r) => r.addEventListener('change', () => ($('#leapBox').hidden = !$('#l2').checked)));
+    $('#print').onclick = () => print();
+
+    function build(save = false) {
+      const dd = +$('#d').value, mm = +$('#m').value, yy = +$('#y').value, hr = +$('#hr').value;
+      const gender = $('#g2').checked ? 'nu' : 'nam', name = $('#name').value.trim();
+      let lunar, solar;
+      if ($('#l1').checked) { lunar = VQ.solar2lunar(dd, mm, yy); solar = { day: dd, month: mm, year: yy }; }
+      else { lunar = { day: dd, month: mm, year: yy, leap: $('#leap').checked ? 1 : 0 }; solar = VQ.lunar2solar(dd, mm, yy, lunar.leap); }
+      $('#err').hidden = true;
+      if (!solar) { $('#err').textContent = `Năm ${yy} âm lịch không có tháng ${mm} nhuận — bỏ chọn “Tháng nhuận” hoặc chọn tháng khác.`; $('#err').hidden = false; return; }
+      const vy = +$('#vy').value;
+      if (!(vy >= 1900 && vy <= 2100)) return;
+      UI.profile.set({ name, day: solar.day, month: solar.month, year: solar.year, hour: hr, gender });
+      if (save) UI.api('laso', null, { action: 'save', chart: { ten: name, lich: 'duong', ngay: solar.day, thang: solar.month, nam: solar.year, gio: hr + 1, gioi_tinh: gender } }).then(paintSo).catch(() => {});
+      const ls = VQ.lapLaSo({ name, lunarDay: lunar.day, lunarMonth: lunar.month, lunarYear: lunar.year, hour: hr, gender, solar, viewYear: vy });
+      render(ls, lunar);
+    }
+
+    function render(ls, lunar) {
+      const chart = $('#chart'); chart.innerHTML = '';
+      ls.palaces.forEach((p) => {
+        const [r, c] = LAYOUT[p.chi];
+        const hoaOf = (s) => p.hoa.filter((x) => x.star === s).map((x) => x.hoa.replace('Hóa ', ''));
+        const cell = h('div', { class: 'cell', style: `grid-row:${r};grid-column:${c}`, 'data-chi': p.chi },
+          h('div', { class: 'top' }, h('span', {}, `${p.canName} ${p.chiName}`), h('b', { style: 'color:var(--vq-ink)' }, p.daiHan)),
+          h('div', { class: 'pname' }, p.name, p.isThan ? h('span', { class: 'than' }, 'THÂN') : null),
+          h('div', { class: 'chinh' }, ...(p.chinhDetail.length ? p.chinhDetail.flatMap((s, i) => [
+              ...(i ? [' · '] : []),
+              h('span', { class: 's-' + STAR_HANH[s.name], title: BR[s.bright] || '' }, s.name, h('sup', {}, s.bright))
+            ]) : [h('span', { class: 'muted', style: 'font-weight:400' }, 'Vô chính diệu')])),
+          h('div', { class: 'hoa' }, p.hoa.map((x) => h('span', { class: (x.luu ? 'luu ' : '') + (x.hoa === 'Hóa Kỵ' ? 'k' : ''), title: `${x.hoa} ${x.star}${x.luu ? ' — lưu niên ' + ls.viewYear : ' — năm sinh'}` }, (x.luu ? 'L.' : '') + x.hoa.replace('Hóa ', '') + ' · ' + x.star.split(' ').pop()))),
+          h('div', { class: 'cols' }, h('div', { class: 'good' }, p.phu.map((s) => h('div', {}, s))), h('div', { class: 'bad' }, p.sat.map((s) => h('div', {}, s)))),
+          p.luu.length ? h('div', { class: 'luu', title: 'Sao lưu niên ' + ls.viewYear }, p.luu.join(' · ')) : null,
+          (p.tuan || p.triet) ? h('div', { class: 'tt' }, p.tuan ? h('b', {}, 'Tuần') : null, p.triet ? h('b', {}, 'Triệt') : null) : null,
+          h('div', { class: 'bot' }, h('span', {}, p.truongSinh), p.tieuHan ? h('span', { class: 'th' }, 'Hạn ' + p.tieuHan) : h('span', {}, '')));
+        cell.addEventListener('click', () => highlight(p.chi));
+        chart.append(cell);
+      });
+      const s = ls.solar;
+      chart.append(h('div', { class: 'center' },
+        h('div', { class: 'small muted mono', style: 'letter-spacing:.2em;position:relative' }, 'LÁ SỐ TỬ VI'),
+        h('h2', { style: 'position:relative' }, ls.name || 'Vô Danh'),
+        h('table', {}, ...[
+          ['Dương lịch', `${s.day}/${s.month}/${s.year}`],
+          ['Âm lịch', `${lunar.day}/${lunar.month}${lunar.leap ? 'N' : ''}/${lunar.year} · giờ ${VQ.CHI[ls.hour]}`],
+          ['Năm', `${ls.yearText} · ${ls.amDuong}`],
+          ['Bản mệnh', ls.banMenh], ['Cục', `${ls.cuc} · ${ls.cucMenhRel}`],
+          ['Mệnh chủ', ls.menhChu], ['Thân chủ', ls.thanChu], ['Thân cư', ls.thanCu],
+          ['Đại hạn', ls.thuan ? 'Thuận hành' : 'Nghịch hành'],
+        ].map(([a, b]) => h('tr', {}, h('td', {}, a), h('td', {}, h('b', {}, b))))),
+        h('div', { style: 'margin-top:12px;position:relative' }, h('span', { class: 'seal', style: 'width:46px;height:46px;font-size:11px' }, h('span', { html: 'VÂN<br>QUẺ' })))));
+      highlight(ls.menh);
+      renderLuan(ls);
+    }
+
+    function highlight(z) {
+      document.querySelectorAll('.cell').forEach((c) => {
+        const k = +c.dataset.chi; c.classList.toggle('hl-main', k === z);
+        c.classList.toggle('hl', k !== z && [4, 8, 6].some((o) => (z + o) % 12 === k));
+      });
+    }
+
+    function renderLuan(ls) {
+      const box = $('#luan'); box.innerHTML = '';
+      const menh = ls.palaces[ls.menh], than = ls.palaces[ls.than];
+      const chinh = menh.chinh.length ? menh.chinh : ls.palaces[(ls.menh + 6) % 12].chinh;
+      box.append(h('div', { class: 'card-title' }, h('span', { class: 'seal', style: 'width:44px;height:44px;font-size:11px', html: 'LUẬN<br>GIẢI' }),
+        h('div', {}, h('h2', {}, 'Luận giải sơ lược'), h('p', {}, 'Tham khảo — người luận cần xét toàn cục, cách cục, hạn vận'))));
+      box.append(h('p', {}, h('b', {}, 'Mệnh '), `an tại ${menh.canName} ${menh.chiName}`,
+        menh.chinh.length ? '' : ' — vô chính diệu, mượn chính tinh cung Thiên Di xung chiếu', '. ', h('b', {}, 'Thân '), `cư ${ls.thanCu}.`));
+      chinh.forEach((s) => box.append(h('p', {}, h('b', { class: 's-' + STAR_HANH[s] }, s + ': '), STAR_DESC[s])));
+      const hoaList = ls.palaces.flatMap((p) => p.hoa.map((x) => `${x.hoa} (${x.star}) tại ${p.name}`));
+      box.append(h('p', {}, h('b', {}, 'Tứ Hóa năm sinh: '), hoaList.join(' · ') || '—'));
+      const lt = ls.palaces.find((p) => p.phu.includes('Lộc Tồn'));
+      box.append(h('p', {}, h('b', {}, 'Lộc Tồn '), `nhập ${lt.name} — nơi tích lũy, giữ gìn tài lộc.`));
+      const dh = ls.palaces.find((p) => { const age = ls.viewYear - ls.lunar.year + 1; return age >= p.daiHan && age < p.daiHan + 10; });
+      if (dh) box.append(h('p', {}, h('b', {}, `Đại hạn hiện tại (${ls.viewYear}): `), `${dh.daiHan}–${dh.daiHan + 9} tuổi tại cung ${dh.name} (${dh.canName} ${dh.chiName}) — ${dh.chinh.join(', ') || 'vô chính diệu'}.`));
+      const th = ls.palaces.find((p) => p.tieuHan);
+      box.append(h('p', {}, h('b', {}, `Tiểu hạn ${ls.viewYear}: `), `tại cung ${th.name} (${th.chiName})`,
+        th.luu.length ? ` — gặp sao lưu: ${th.luu.join(', ')}.` : ' — không có sao lưu niên chiếu thẳng.'));
+      const ttMenh = THAI_TUE_RING.find((s) => menh.phu.includes(s) || menh.sat.includes(s));
+      if (ttMenh) box.append(h('p', {}, h('b', {}, 'Vòng Thái Tuế: '), `Mệnh gặp `, h('b', {}, ttMenh), ` — ${TT_DESC[ttMenh]}`));
+      const hoaLuu = ls.palaces.flatMap((p) => p.hoa.filter((x) => x.luu).map((x) => `${x.hoa} (${x.star}) tại ${p.name}`));
+      box.append(h('p', {}, h('b', {}, `Tứ Hóa lưu niên ${ls.viewYear}: `), hoaLuu.join(' · ') || 'các sao hóa không có mặt trong lá số.'));
+    }
+
+    $('#f').addEventListener('submit', (e) => { e.preventDefault(); build(true); });
+
+    // ── Sổ lá số: lưu khi bấm "Lập lá số"; đồng bộ với tuvi.work nếu đã đăng nhập ──
+    async function paintSo() {
+      const [list, acc] = await Promise.all([UI.api('laso'), UI.api('account')]).catch(() => [[], {}]);
+      $('#soSub').textContent = acc.signedIn ? '☁ đồng bộ với tuvi.work' : list.length ? 'chỉ trên máy này' : '';
+      const box = $('#soList'); box.innerHTML = '';
+      if (!list.length) { box.append(h('p', { class: 'so-empty' }, 'Bấm “Lập lá số” để lưu lá số vào sổ.' + (acc.signedIn ? '' : ' Đăng nhập trong Cài đặt để mang sổ theo mọi thiết bị.'))); return; }
+      for (const c of list) {
+        const gioName = VQ.CHI[(c.gio - 1 + 12) % 12];
+        box.append(h('div', { class: 'so-item', title: 'Mở lá số này', onclick: () => openChart(c) },
+          h('div', {}, h('b', {}, c.ten || 'Vô danh', c.chartKey && !c.dirty ? h('span', { class: 'cloud', title: 'Đã lưu trên tuvi.work' }, '☁') : null),
+            h('small', {}, `${c.gioi_tinh === 'nu' ? 'Nữ' : 'Nam'} · ${c.ngay}/${c.thang}/${c.nam}${c.lich === 'am' ? ' ÂL' : ''} · giờ ${gioName}${c.can_chi ? ' · ' + c.can_chi : ''}`)),
+          h('button', { class: 'ibtn', title: 'Xóa khỏi sổ', onclick: (e) => { e.stopPropagation(); UI.api('laso', null, { action: 'remove', id: c.id }).then(paintSo); } }, '✕')));
+      }
+    }
+    function openChart(c) {
+      $('#name').value = c.ten || '';
+      $(c.lich === 'am' ? '#l2' : '#l1').checked = true;
+      $('#leapBox').hidden = c.lich !== 'am'; $('#leap').checked = false;
+      $('#d').value = c.ngay; $('#m').value = c.thang; $('#y').value = c.nam; $('#hr').value = (c.gio - 1 + 12) % 12;
+      $('#g' + (c.gioi_tinh === 'nu' ? 2 : 1)).checked = true;
+      build(); scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    UI.onStore((what) => { if (what === 'laSo' || what === 'account') paintSo(); });
+    // Hồ sơ cũ (trước khi có sổ) được đưa vào sổ một lần
+    try {
+      if (prof && !localStorage.getItem('vq-so-migrated')) {
+        localStorage.setItem('vq-so-migrated', '1');
+        UI.api('laso').then((l) => !l.length && UI.api('laso', null, { action: 'save', chart: { ten: prof.name || '', lich: 'duong', ngay: prof.day, thang: prof.month, nam: prof.year, gio: (prof.hour | 0) + 1, gioi_tinh: prof.gender === 'nu' ? 'nu' : 'nam' } })).then(paintSo).catch(() => {});
+      }
+    } catch (e) {}
+    paintSo();
+    let vyTimer; $('#vy').addEventListener('input', () => { clearTimeout(vyTimer); vyTimer = setTimeout(build, 250); });
+    build();
+  </script>
+</body>
+</html>

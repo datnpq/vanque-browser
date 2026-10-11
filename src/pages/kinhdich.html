@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Kinh Dịch · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .coins { display: flex; gap: 14px; justify-content: center; height: 70px; align-items: center; }
+    .coin { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: start center; padding-top: 3px; font-family: var(--font-han); font-weight: 900; font-size: 13px; line-height: 1;
+      background: radial-gradient(circle at 35% 30%, #f3d98a, var(--vq-gold) 60%, var(--vq-gold-strong)); color: #4a3405; border: 2px solid var(--vq-gold-strong); position: relative; }
+    .coin::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border: 2px solid #4a3405; background: var(--vq-card); }
+    .coin.am { filter: grayscale(.25) brightness(.85); }
+    .coin.flip { animation: flip .5s ease; }
+    @keyframes flip { 0% { transform: rotateY(0) translateY(0); } 50% { transform: rotateY(540deg) translateY(-26px); } 100% { transform: rotateY(1080deg); } }
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; scroll-margin-top: 16px; }
+    @media (max-width: 860px) { .three { grid-template-columns: 1fr; } }
+    .hexcard { text-align: center; }
+    .hexcard .hx { display: flex; justify-content: center; margin: 14px 0; }
+    .hexcard h3 { font-size: 22px; }
+    .all { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+    @media (max-width: 860px) { .all { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .all button { border: 1px solid var(--vq-line-strong); background: var(--vq-bg); border-radius: 8px; padding: 8px 2px 6px; cursor: pointer; color: var(--vq-ink); font: inherit; font-size: 11px; line-height: 1.2; }
+    .all button:hover { border-color: var(--vq-gold); }
+    .all button .mini { display: flex; flex-direction: column-reverse; gap: 2px; width: 28px; margin: 0 auto 5px; }
+    .all button .mini i { height: 3px; }
+    .log { font-family: var(--font-mono); font-size: 12.5px; color: var(--vq-ink-soft); text-align: center; min-height: 20px; }
+    .td { grid-column: 1 / -1; }
+    .td .pair { display: flex; gap: 18px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 6px 0 10px; }
+    .td .q { text-align: center; min-width: 110px; }
+    .td .q .s { font-size: 34px; color: var(--vq-gold-strong); line-height: 1; display: block; }
+    .td .q small { display: block; color: var(--vq-ink-soft); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
+    .td .arrow { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+    .verdict { text-align: center; font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+    .ok { color: var(--vq-luc); } .ng { color: var(--vq-son); }
+    .numform { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
+    .hist { display: grid; gap: 2px; }
+    .hist .row { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 9px; cursor: pointer; }
+    .hist .row:hover { background: var(--vq-bg-deep); }
+    .hist .row .qq { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hist .row .tm { font-family: var(--font-mono); font-size: 12px; color: var(--vq-ink-soft); }
+    .gridhead { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+    .gridhead .field { max-width: 280px; }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">易經</span>
+    <div class="kicker">Gieo quẻ · Mai Hoa · Lục thập tứ quái</div>
+    <h1>Kinh <em>Dịch</em></h1>
+    <p class="motto">«Dịch: cùng tắc biến, biến tắc thông, thông tắc cửu»</p>
+  </header>
+  <main class="wrap">
+    <section class="card card--corner" style="max-width:760px;margin:0 auto">
+      <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">VẤN<br>QUẺ</span>
+        <div><h2>Tâm thành tất ứng</h2><p>Tĩnh tâm, nghĩ rõ việc cần hỏi rồi gieo</p></div></div>
+      <input class="field" id="q" placeholder="Việc cần hỏi… (ví dụ: Có nên nhận công việc mới?)" maxlength="200">
+      <div class="coins mt" id="coins"><span class="coin">通</span><span class="coin">寶</span><span class="coin">元</span></div>
+      <div class="log" id="log"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap" class="mt">
+        <button class="btn" id="gieo">✦ Gieo 3 đồng xu</button>
+        <button class="btn btn--ghost" id="mai">Mai Hoa theo giờ</button>
+      </div>
+      <hr class="sep">
+      <form class="numform" id="numf">
+        <div><label class="lb" for="n1">Số thứ nhất → thượng quái</label><input class="field" id="n1" type="number" min="1" max="99999" required placeholder="vd. 3"></div>
+        <div><label class="lb" for="n2">Số thứ hai → hạ quái</label><input class="field" id="n2" type="number" min="1" max="99999" required placeholder="vd. 8"></div>
+        <button class="btn btn--ghost">Mai Hoa theo số</button>
+      </form>
+      <p class="small muted mt">Tiên Thiên bát quái số: Càn 1 · Đoài 2 · Ly 3 · Chấn 4 · Tốn 5 · Khảm 6 · Cấn 7 · Khôn 8. Mỗi số chia 8 lấy dư (dư 0 là 8); tổng hai số chia 6 lấy dư ra hào động (dư 0 là 6).</p>
+    </section>
+    <div class="center mt" id="copyWrap" hidden><button class="btn btn--sm btn--ghost" id="copy">⎘ Sao chép kết quả</button></div>
+    <section class="three mt" id="result"></section>
+    <section class="card mt2" style="max-width:760px;margin-left:auto;margin-right:auto" id="histCard">
+      <div class="gridhead"><div><h3>Sổ quẻ</h3><p class="small muted" style="margin:2px 0 0">Các lần gieo gần đây (lưu trên máy này, tối đa 50)</p></div>
+        <button class="btn btn--sm btn--danger" id="clearHist">Xóa sổ</button></div>
+      <div class="hist mt" id="hist"></div>
+    </section>
+    <section class="card mt2"><div class="gridhead"><div><h3>Lục thập tứ quái</h3><p class="small muted" style="margin:2px 0 0">Bấm vào quẻ bất kỳ để xem.</p></div>
+      <input class="field" id="filter" type="search" placeholder="Lọc quẻ… (vd. cang, thai, ky te)"></div>
+      <div class="all mt" id="all"></div></section>
+  </main>
+  <script>
+    const { $, h, drawHex } = UI;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+    const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+    const LOG_KEY = 'vq-que-log';
+    const METHOD = { xu: 'Gieo xu', gio: 'Mai Hoa theo giờ', so: 'Mai Hoa theo số', xem: 'Xem quẻ' };
+    let current = null;
+
+    const loadLog = () => { try { const v = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+    const saveLog = (list) => { try { localStorage.setItem(LOG_KEY, JSON.stringify(list.slice(0, 50))); } catch (e) {} };
+    function addLog(entry) { const list = loadLog(); list.unshift(entry); saveLog(list); renderLog(); }
+
+    function card(title, q, moving = [], extra = '') {
+      return h('div', { class: 'card hexcard rise' }, h('div', { class: 'small muted mono', style: 'letter-spacing:.2em' }, title),
+        h('div', { class: 'hx' }, drawHex(q.lines, moving, 110)),
+        h('div', { class: 'small muted' }, `Quẻ ${q.number} · ${q.upper.sym} ${q.upper.name} (${q.upper.tuong}) / ${q.lower.sym} ${q.lower.name} (${q.lower.tuong})`),
+        h('h3', { class: 'mt' }, q.name), h('p', { class: 'muted' }, q.meaning), extra ? h('p', { class: 'small' }, extra) : null);
+    }
+    function theDungBox(r) {
+      const td = r.theDung;
+      const box = h('div', { class: 'card td' }, h('div', { class: 'small muted mono center', style: 'letter-spacing:.2em' }, 'THỂ – DỤNG'));
+      if (!td) {
+        box.append(h('p', { class: 'center muted' }, r.moving.length
+          ? 'Hào động chia đều ở cả thượng và hạ quái — không phân Thể Dụng; luận theo bản quẻ và biến quẻ.'
+          : 'Tĩnh quẻ (không có hào động) — không phân Thể Dụng; xem thoán từ của bản quẻ.'));
+        return box;
+      }
+      const q = (label, t) => h('div', { class: 'q' }, h('small', {}, label), h('span', { class: 's' }, t.sym), h('b', {}, t.name), h('div', {}, UI.hanhSpan(t.hanh)));
+      const cls = td.cat > 0 ? 'ok' : 'ng';
+      box.append(h('div', { class: 'pair' }, q('Thể', td.the), h('span', { class: 'arrow ' + cls }, td.rel), q('Dụng', td.dung)),
+        h('div', { class: 'verdict ' + cls }, td.verdict),
+        h('p', { class: 'small muted center' }, `Hào động nằm ở ${td.dungAt} nên quái ấy là Dụng, quái tĩnh là Thể (${td.theHanh} – ${td.dungHanh}).`));
+      return box;
+    }
+    function show(r, { note = '', ask = $('#q').value.trim(), scroll = true } = {}) {
+      current = { r, note, ask };
+      const R = $('#result'); R.innerHTML = '';
+      R.append(card('BẢN QUẺ', r.chinh, r.moving, (ask ? `Hỏi: «${ask}». ` : '') + (r.moving.length ? `Hào động: ${r.moving.join(', ')}.` : 'Tĩnh quẻ — xem thoán từ bản quẻ.') + (note ? ' ' + note : '')));
+      R.append(card('HỖ QUẺ', r.ho, [], 'Diễn biến bên trong, quá trình.'));
+      R.append(r.bien ? card('BIẾN QUẺ', r.bien, [], 'Kết cục, xu hướng sau cùng.') : h('div', { class: 'card hexcard' }, h('div', { class: 'small muted mono' }, 'BIẾN QUẺ'), h('p', { class: 'mt muted' }, 'Không có hào động — việc giữ nguyên thế.')));
+      R.append(theDungBox(r));
+      $('#copyWrap').hidden = false;
+      if (scroll) R.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+    function summary() {
+      if (!current) return '';
+      const { r, note, ask } = current, td = r.theDung;
+      return [
+        'Vân Quẻ · Kinh Dịch — ' + new Date().toLocaleString('vi-VN'),
+        ask ? 'Hỏi: ' + ask : null,
+        `Bản quẻ: ${r.chinh.number}. ${r.chinh.name} — ${r.chinh.meaning}`,
+        r.moving.length ? 'Hào động: ' + r.moving.join(', ') : 'Tĩnh quẻ',
+        `Hỗ quẻ: ${r.ho.number}. ${r.ho.name}`,
+        r.bien ? `Biến quẻ: ${r.bien.number}. ${r.bien.name} — ${r.bien.meaning}` : 'Biến quẻ: —',
+        td ? `Thể ${td.the.name} (${td.theHanh}) · Dụng ${td.dung.name} (${td.dungHanh}) · ${td.rel}: ${td.verdict}` : 'Thể – Dụng: không phân',
+        note || null,
+      ].filter(Boolean).join('\n');
+    }
+    $('#copy').onclick = () => navigator.clipboard.writeText(summary()).then(() => UI.toast('Đã sao chép kết quả')).catch(() => UI.toast('Không sao chép được'));
+
+    $('#gieo').onclick = async () => {
+      $('#gieo').disabled = true; const hao = [];
+      const coins = [...document.querySelectorAll('.coin')];
+      for (let i = 0; i < 6; i++) {
+        let s = 0; const faces = [];
+        if (!reduce) coins.forEach((c) => { c.classList.remove('flip'); void c.offsetWidth; c.classList.add('flip'); });
+        await sleep(520);
+        coins.forEach((c) => { const v = Math.random() < 0.5 ? 2 : 3; s += v; faces.push(v); c.classList.toggle('am', v === 2); c.textContent = v === 3 ? '陽' : '陰'; });
+        hao.push(s);
+        $('#log').textContent = `Hào ${i + 1}: ${faces.map((f) => (f === 3 ? 'Ngửa' : 'Sấp')).join(' · ')} = ${s} ${({ 6: 'Lão âm ✕', 7: 'Thiếu dương ⚊', 8: 'Thiếu âm ⚋', 9: 'Lão dương ○' })[s]}`;
+        await sleep(380);
+      }
+      const r = VQ.docQue(hao); show(r);
+      addLog({ time: Date.now(), question: $('#q').value.trim(), method: 'xu', hao });
+      $('#gieo').disabled = false;
+    };
+    $('#mai').onclick = () => {
+      const n = new Date(); const r = VQ.maiHoa(n.getDate(), n.getMonth() + 1, n.getFullYear(), n.getHours());
+      $('#log').textContent = r.formula; show(r, { note: r.formula });
+      addLog({ time: Date.now(), question: $('#q').value.trim(), method: 'gio', hao: r.hao, note: r.formula });
+    };
+    function maiHoaSo(a, b) {
+      const up = ((a % 8) || 8) - 1, lo = ((b % 8) || 8) - 1, dong = ((a + b) % 6) || 6;
+      const lines = [...VQ.TRIGRAM[lo].lines, ...VQ.TRIGRAM[up].lines];
+      const hao = lines.map((l, i) => (i + 1 === dong ? (l ? 9 : 6) : l ? 7 : 8));
+      const formula = `Thượng quái ${a} mod 8 → ${VQ.TRIGRAM[up].name} · Hạ quái ${b} mod 8 → ${VQ.TRIGRAM[lo].name} · Hào động (${a}+${b}) mod 6 = ${dong}`;
+      return { hao, formula };
+    }
+    $('#numf').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const a = Math.abs(parseInt($('#n1').value, 10)), b = Math.abs(parseInt($('#n2').value, 10));
+      if (!a || !b) return UI.toast('Nhập hai số nguyên dương');
+      const { hao, formula } = maiHoaSo(a, b), r = VQ.docQue(hao);
+      $('#log').textContent = formula; show(r, { note: formula });
+      addLog({ time: Date.now(), question: $('#q').value.trim(), method: 'so', hao, note: formula });
+    });
+
+    function renderLog() {
+      const list = loadLog(), H = $('#hist'); H.innerHTML = '';
+      $('#clearHist').hidden = !list.length;
+      if (!list.length) { H.append(h('div', { class: 'empty', style: 'padding:22px' }, 'Chưa có quẻ nào trong sổ.')); return; }
+      list.forEach((e, i) => {
+        let r; try { r = VQ.docQue(e.hao); } catch (err) { return; }
+        const d = new Date(e.time);
+        H.append(h('div', { class: 'row', title: 'Xem lại quẻ này', onclick: () => { $('#q').value = e.question || ''; show(r, { note: e.note || '', ask: e.question || '' }); } },
+          h('span', { class: 'tm' }, d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })),
+          h('div', { style: 'min-width:0' }, h('div', { class: 'qq' }, h('b', {}, r.chinh.name), r.bien ? ' → ' + r.bien.name : ' (tĩnh)'),
+            h('div', { class: 'qq small muted' }, (e.question ? '«' + e.question + '» · ' : '') + (METHOD[e.method] || e.method))),
+          h('button', { class: 'ibtn', title: 'Xóa mục này', onclick: (ev) => { ev.stopPropagation(); const l = loadLog(); l.splice(i, 1); saveLog(l); renderLog(); } }, '✕')));
+      });
+    }
+    $('#clearHist').onclick = () => { if (confirm('Xóa toàn bộ sổ quẻ?')) { saveLog([]); renderLog(); } };
+
+    for (let n = 1; n <= 64; n++) {
+      let lines; for (let u = 0; u < 8; u++) for (let l = 0; l < 8; l++) if (VQ.hexagram([...VQ.TRIGRAM[l].lines, ...VQ.TRIGRAM[u].lines]).number === n) lines = [...VQ.TRIGRAM[l].lines, ...VQ.TRIGRAM[u].lines];
+      const mini = h('div', { class: 'mini' }, lines.map((x) => h('i', { class: 'hao' + (x ? '' : ' hao--broken') })));
+      const q = VQ.hexagram(lines);
+      const b = h('button', { title: q.meaning, 'data-k': fold(`${n} ${q.name} ${q.meaning}`), onclick: () => show(VQ.docQue(lines.map((x) => (x ? 7 : 8))), { ask: '' }) }, mini, `${n}. ${q.name}`);
+      $('#all').append(b);
+    }
+    $('#filter').addEventListener('input', () => {
+      const f = fold($('#filter').value.trim());
+      document.querySelectorAll('#all button').forEach((b) => (b.hidden = !!f && !b.dataset.k.includes(f)));
+    });
+    renderLog();
+  </script>
+</body>
+</html>

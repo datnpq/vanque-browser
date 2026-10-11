@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Cài đặt · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .sec { margin-top: 18px; }
+    .sec h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .sec h2 .s { color: var(--vq-gold-strong); }
+    select.field { width: auto; min-width: 200px; }
+    .perm { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--vq-line); font-size: 14px; }
+    .perm .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .kv { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+    .kv span:nth-child(odd) { color: var(--vq-ink-soft); }
+    .kv code { font-family: var(--font-mono); font-size: 12.5px; word-break: break-all; }
+    kbd { font-family: var(--font-mono); font-size: 12px; padding: 1px 6px; border: 1px solid var(--vq-line-strong); border-bottom-width: 2px; border-radius: 5px; background: var(--vq-bg); white-space: nowrap; }
+    .keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 6px 22px; font-size: 13.5px; }
+    .keys div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dotted var(--vq-line); padding: 4px 0; }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">設定</span>
+    <div class="kicker">Tùy chỉnh trình duyệt</div>
+    <h1>Cài <em>đặt</em></h1>
+    <p class="motto">«Tùy thời mà biến — vạn sự hanh thông»</p>
+  </header>
+  <main class="wrap mgr">
+    <section class="card card--corner" id="taikhoan">
+      <div class="card-title"><span class="seal seal--fill" style="width:44px;height:44px;font-size:11px">ĐẠO<br>HỮU</span><div><h2>Tài khoản tuvi.work</h2><p>Không bắt buộc · đồng bộ sổ lá số giữa các thiết bị</p></div></div>
+      <div id="acct"></div>
+    </section>
+
+    <section class="card card--corner mt2">
+      <div class="sec" style="margin-top:0"><h2><span class="s">◐</span> Giao diện</h2>
+        <div class="setrow"><div><b>Chủ đề màu</b><small>Giấy dó (sáng), mực tàu (tối) hoặc theo hệ điều hành.</small></div>
+          <div class="pill-group" id="theme">
+            <input type="radio" name="th" id="th-light" value="light"><label for="th-light">Sáng</label>
+            <input type="radio" name="th" id="th-dark" value="dark"><label for="th-dark">Tối</label>
+            <input type="radio" name="th" id="th-system" value="system"><label for="th-system">Theo hệ thống</label>
+          </div></div>
+        <div class="setrow"><div><b>Thanh Bát Quẻ Môn</b><small>Hiện các phân hệ lý số và đánh dấu dưới thanh địa chỉ (Ctrl+Shift+B).</small></div>
+          <label class="switch"><input type="checkbox" data-k="showBookmarksBar"><span></span></label></div>
+      </div>
+      <div class="sec"><h2><span class="s">⌕</span> Tìm kiếm & khởi động</h2>
+        <div class="setrow"><div><b>Máy tìm kiếm</b><small>Dùng cho thanh địa chỉ, Thiên Môn và menu chuột phải.</small></div><select class="field" id="engine"></select></div>
+        <div class="setrow"><div><b>Khôi phục phiên làm việc</b><small>Mở lại các thẻ của lần trước. Thẻ nền chỉ tải khi bạn bấm vào.</small></div>
+          <label class="switch"><input type="checkbox" data-k="restoreSession"><span></span></label></div>
+      </div>
+      <div class="sec"><h2><span class="s">⤓</span> Tải xuống</h2>
+        <div class="setrow"><div><b>Thư mục lưu</b><small id="dir"></small></div><button class="btn btn--sm btn--ghost" id="chooseDir">Đổi…</button></div>
+        <div class="setrow"><div><b>Hỏi nơi lưu mỗi lần tải</b><small>Mở hộp thoại chọn vị trí trước khi tải.</small></div>
+          <label class="switch"><input type="checkbox" data-k="askDownload"><span></span></label></div>
+      </div>
+      <div class="sec"><h2><span class="s">⚿</span> Quyền riêng tư & bảo mật</h2>
+        <div class="setrow"><div><b>Ghi lịch sử duyệt web</b><small>Tắt để không lưu các trang đã xem (vq:lichsu).</small></div>
+          <label class="switch"><input type="checkbox" data-k="historyEnabled"><span></span></label></div>
+        <div class="setrow"><div><b>Quyền đã cấp cho trang web</b><small>Thông báo, vị trí, camera, micro… Trang chưa được cấp sẽ phải hỏi bạn.</small><div id="perms" class="mt"></div></div>
+          <button class="btn btn--sm btn--ghost" id="resetPerms">Đặt lại tất cả</button></div>
+        <div class="setrow"><div><b>Xóa dữ liệu duyệt web</b><small>Bộ nhớ đệm, cookie và dữ liệu lưu của trang web (sẽ đăng xuất khỏi các trang; hồ sơ lý số cũng bị xóa).</small>
+          <div class="mt" style="display:flex;gap:14px;flex-wrap:wrap"><label class="small"><input type="checkbox" id="cCache" checked> Bộ nhớ đệm</label><label class="small"><input type="checkbox" id="cCookies"> Cookie & dữ liệu trang</label><label class="small"><input type="checkbox" id="cHist"> Lịch sử</label></div></div>
+          <button class="btn btn--sm btn--danger" id="clearData">Xóa</button></div>
+      </div>
+      <div class="sec"><h2><span class="s">☯</span> Hồ sơ lý số</h2>
+        <div class="setrow"><div><b>Ngày giờ sinh đã lưu</b><small id="prof">—</small></div><button class="btn btn--sm btn--ghost" id="clearProf">Quên hồ sơ</button></div>
+      </div>
+    </section>
+
+    <section class="card mt2">
+      <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">PHÍM<br>TẮT</span><div><h2>Phím tắt</h2><p>Hoạt động cả khi đang ở trong trang web</p></div></div>
+      <div class="keys" id="keys"></div>
+    </section>
+
+    <section class="card mt2">
+      <div class="card-title"><span class="seal seal--fill" style="width:44px;height:44px;font-size:11px">VÂN<br>QUẺ</span><div><h2>Giới thiệu</h2><p>Trình duyệt Huyền Học Phương Đông · lý số chạy hoàn toàn ngoại tuyến</p></div></div>
+      <div class="kv" id="about"></div>
+      <p class="note mt">Lý số để tham khảo, chiêm nghiệm — Đức năng thắng số. Phông chữ Phudu và Be Vietnam Pro theo giấy phép SIL Open Font License 1.1.</p>
+    </section>
+  </main>
+  <script>
+    const { $, h, api } = UI;
+    const PERM_VI = { notifications: 'Thông báo', geolocation: 'Vị trí', media: 'Camera/Micro', 'display-capture': 'Chia sẻ màn hình', midi: 'MIDI', midiSysex: 'MIDI SysEx',
+      'clipboard-read': 'Đọc bộ nhớ tạm', 'idle-detection': 'Phát hiện rời máy', 'storage-access': 'Cookie bên thứ ba', 'top-level-storage-access': 'Cookie bên thứ ba',
+      openExternal: 'Mở ứng dụng ngoài', 'speaker-selection': 'Chọn loa', 'window-management': 'Quản lý cửa sổ' };
+    let S = {};
+    const patch = (p) => api('settings', null, { patch: p }).then(render).catch((e) => UI.toast(e.message));
+    function render(r) {
+      S = r.settings;
+      document.querySelector(`#th-${S.theme}`).checked = true;
+      UI.fillSelect($('#engine'), Object.entries(r.engines).map(([k, v]) => [k, v.name]), S.searchEngine);
+      document.querySelectorAll('[data-k]').forEach((cb) => (cb.checked = !!S[cb.dataset.k]));
+      $('#dir').textContent = S.downloadDir || r.defaultDownloadDir + ' (mặc định)';
+      const P = $('#perms'); P.innerHTML = '';
+      const origins = Object.entries(S.permissions || {});
+      if (!origins.length) P.append(h('div', { class: 'small muted' }, 'Chưa có trang nào được ghi nhớ quyền.'));
+      origins.forEach(([o, perms]) => P.append(h('div', { class: 'perm' }, h('b', { style: 'overflow:hidden;text-overflow:ellipsis' }, o.replace(/^https?:\/\//, '')),
+        h('div', { class: 'chips' }, Object.entries(perms).map(([k, v]) => h('span', { class: 'chip ' + (v === 'allow' ? 'chip--luc' : 'chip--son') }, `${PERM_VI[k] || k}: ${v === 'allow' ? 'cho phép' : 'chặn'}`))),
+        h('button', { class: 'ibtn', title: 'Quên quyền của trang này', onclick: () => patch({ resetPermission: o }) }, '✕'))));
+    }
+    document.querySelectorAll('[name=th]').forEach((r) => r.addEventListener('change', () => patch({ theme: r.value })));
+    $('#engine').addEventListener('change', () => patch({ searchEngine: $('#engine').value }));
+    document.querySelectorAll('[data-k]').forEach((cb) => cb.addEventListener('change', () => patch({ [cb.dataset.k]: cb.checked })));
+    $('#resetPerms').onclick = () => patch({ resetAllPermissions: true });
+    $('#chooseDir').onclick = () => api('downloads', null, { action: 'choose-dir' }).then(() => api('settings')).then(render);
+    $('#clearData').onclick = async () => {
+      const cache = $('#cCache').checked, cookies = $('#cCookies').checked, hist = $('#cHist').checked;
+      if (!cache && !cookies && !hist) return UI.toast('Chưa chọn mục nào');
+      if ((cookies || hist) && !confirm('Xóa dữ liệu đã chọn? Không thể hoàn tác.')) return;
+      const r = await api('browsing-data', null, { cache, cookies });
+      if (hist) await api('history', null, { action: 'clear', range: 'all' });
+      UI.toast('Đã xóa: ' + [...r.done, ...(hist ? ['lịch sử'] : [])].join(', '));
+      showProfile();
+    };
+    function showProfile() {
+      const p = UI.profile.get();
+      $('#prof').textContent = p ? `${p.name || 'Vô danh'} · ${p.gender === 'nu' ? 'Nữ' : 'Nam'} · ${p.day}/${p.month}/${p.year} giờ ${VQ.CHI[p.hour]} — dùng chung cho Tử Vi, Tử Bình, Bát Trạch, Ngũ Hành` : 'Chưa lưu. Lập một lá số Tử Vi để lưu hồ sơ dùng chung.';
+    }
+    $('#clearProf').onclick = () => { localStorage.removeItem('vq-profile'); showProfile(); UI.toast('Đã quên hồ sơ lý số'); };
+    const KEYS = [['Thẻ mới', 'Ctrl+T'], ['Đóng thẻ', 'Ctrl+W'], ['Mở lại thẻ vừa đóng', 'Ctrl+Shift+T'], ['Thẻ kế / trước', 'Ctrl+Tab · Ctrl+Shift+Tab'], ['Tới thẻ 1–8 / cuối', 'Ctrl+1…8 · Ctrl+9'],
+      ['Thanh địa chỉ', 'Ctrl+L · Alt+D · F6'], ['Mở ở thẻ mới từ thanh địa chỉ', 'Alt+Enter'], ['Tải lại / bỏ bộ đệm', 'F5 · Ctrl+Shift+R'], ['Quay lại / tiến tới', 'Alt+← · Alt+→'], ['Thiên Môn', 'Alt+Home'],
+      ['Tìm trong trang', 'Ctrl+F · F3'], ['Đánh dấu trang', 'Ctrl+D'], ['Quản lý đánh dấu', 'Ctrl+Shift+O'], ['Ẩn/hiện Bát Quẻ Môn', 'Ctrl+Shift+B'], ['Lịch sử', 'Ctrl+H'], ['Tải xuống', 'Ctrl+J'],
+      ['Cài đặt', 'Ctrl+,'], ['Sáng / tối', 'Ctrl+Shift+D'], ['Tắt tiếng thẻ', 'Ctrl+M'], ['Thu phóng', 'Ctrl+= · Ctrl+- · Ctrl+0'], ['In / Lưu PDF', 'Ctrl+P'], ['Toàn màn hình', 'F11'], ['Công cụ phát triển', 'F12 · Ctrl+Shift+I']];
+    KEYS.forEach(([a, b]) => $('#keys').append(h('div', {}, h('span', {}, a), h('span', {}, ...b.split(' · ').flatMap((k, i) => [i ? ' ' : '', h('kbd', {}, k)])))));
+    api('about').then((a) => [['Vân Quẻ', a.app], ['Electron', a.electron], ['Chromium', a.chrome], ['Node.js', a.node], ['V8', a.v8], ['Hệ thống', a.platform], ['Dữ liệu người dùng', h('code', {}, a.userData)]]
+      .forEach(([k, v]) => $('#about').append(h('span', {}, k), h('span', {}, v))));
+    UI.onStore((what) => { if (what === 'settings') api('settings').then(render); });
+    UI.accountBox($('#acct'));
+    api('settings').then(render); showProfile();
+  </script>
+</body>
+</html>

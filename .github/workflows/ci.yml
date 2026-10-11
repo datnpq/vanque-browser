@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Kiểm tra đơn vị
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm test
+
+  e2e:
+    name: End-to-end (${{ matrix.theme }})
+    runs-on: windows-latest
+    # Ứng dụng Electron có giao diện; chạy được trên máy ảo Windows của GitHub nhưng có thể chập chờn
+    continue-on-error: true
+    strategy:
+      matrix: { theme: [light, dark] }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: node test/e2e.js ${{ matrix.theme }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: e2e-${{ matrix.theme }}, path: test/shots/, if-no-files-found: ignore }
+
+  build:
+    name: Bộ cài Windows
+    needs: test
+    runs-on: windows-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      # Khóa kết nối tuvi.work chỉ có ở bản phát hành chính thức (bí mật VQ_TUVI_KEY), không nằm trong mã nguồn.
+      # Thiếu khóa thì phần đăng nhập tự ẩn.
+      - name: Build
+        shell: bash
+        env:
+          VQ_TUVI_KEY: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.VQ_TUVI_KEY || '' }}
+        run: |
+          if [ -n "$VQ_TUVI_KEY" ]; then
+            npx electron-builder --win --publish never "-c.extraMetadata.tuvi.apiKey=$VQ_TUVI_KEY"
+          else
+            npx electron-builder --win --publish never
+          fi
+      - name: Đặt tên tệp cố định
+        shell: bash
+        run: |
+          mkdir out
+          cp dist/*Setup*.exe out/VanQue-Setup-x64.exe
+          find dist -maxdepth 1 -name '*.exe' ! -name '*Setup*' -exec cp {} out/VanQue-Portable-x64.exe \;
+          cd out && sha256sum *.exe > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        id: upload
+        with: { name: vanque-windows, path: out/, if-no-files-found: error }
+
+      # Ký số qua SignPath Foundation: bật sau khi dự án được duyệt (xem CODE_SIGNING.md).
+      # - uses: signpath/github-action-submit-signing-request@v1
+      #   with:
+      #     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+      #     organization-id: '<id tổ chức SignPath>'
+      #     project-slug: vanque-browser
+      #     signing-policy-slug: release-signing
+      #     github-artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      #     wait-for-completion: true
+      #     output-artifact-directory: signed/

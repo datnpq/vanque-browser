@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Kỳ Môn Độn Giáp · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .plate { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 2px solid var(--vq-ink); background: var(--vq-card); position: relative; }
+    .gong { border: 1px solid var(--vq-line-strong); min-height: 190px; padding: 10px 12px; position: relative; display: grid; grid-template-rows: auto 1fr auto; }
+    .gong .hd { display: flex; justify-content: space-between; font-size: 12px; color: var(--vq-ink-soft); }
+    .gong .than { font-family: var(--font-display); font-weight: 700; color: var(--vq-cham); font-size: 15px; }
+    .gong .mid { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin: 6px 0; }
+    .gong .sao { font-family: var(--font-display); font-size: 17px; font-weight: 700; }
+    .gong .mon { font-family: var(--font-display); font-size: 22px; font-weight: 800; }
+    .gong .mon.c1 { color: var(--vq-luc); } .gong .mon.c0 { color: var(--vq-son); } .gong .mon.c05 { color: var(--vq-gold-strong); }
+    .gong .nghi { text-align: right; font-family: var(--font-display); line-height: 1.15; }
+    .gong .nghi .t { font-size: 22px; font-weight: 800; color: var(--vq-son); }
+    .gong .nghi .d { font-size: 18px; color: var(--vq-ink-soft); }
+    .gong .num { position: absolute; right: 10px; bottom: 6px; font-family: var(--font-han); font-size: 46px; color: var(--vq-gold); opacity: .18; line-height: 1; }
+    .gong.zhong { background: color-mix(in srgb, var(--vq-gold) 7%, transparent); }
+    .gong.zhi { box-shadow: inset 0 0 0 2px var(--vq-son); }
+    .legend span { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">奇門</span>
+    <div class="kicker">Tam kỳ · Lục nghi · Bát môn · Cửu tinh · Bát thần</div>
+    <h1>Kỳ Môn <em>Độn Giáp</em></h1>
+    <p class="motto">«Thiên thời không bằng địa lợi, địa lợi không bằng nhân hòa»</p>
+  </header>
+  <main class="wrap split">
+    <aside class="card card--corner">
+      <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">KỲ<br>MÔN</span>
+        <div><h2>Khởi cục giờ</h2><p>Chuyển bàn · phù đầu định nguyên</p></div></div>
+      <form class="form" id="f">
+        <div><label class="lb">Ngày</label><input class="field" type="date" id="dt"></div>
+        <div><label class="lb">Giờ</label><input class="field" type="time" id="tm"></div>
+        <div style="display:flex;gap:8px"><button class="btn" style="flex:1">✦ Khởi cục</button><button class="btn btn--ghost" type="button" id="now">Bây giờ</button></div>
+      </form>
+      <div id="info" class="mt"></div>
+      <p class="note mt">Bố cục cửu cung theo Lạc Thư, <b>Nam ở trên</b>. Mỗi cung: Bát thần (trên), Cửu tinh & Bát môn, Thiên bàn (đỏ) / Địa bàn (nhạt).</p>
+    </aside>
+    <section>
+      <div class="plate" id="plate"></div>
+      <div class="card mt"><h3>Cát hung tám cửa</h3><div id="advice" class="mt"></div>
+        <p class="small muted legend mt"><span class="ok">● Cát môn: Hưu · Sinh · Khai</span><span>● Trung bình: Cảnh · Đỗ</span><span>● Hung môn: Thương · Tử · Kinh</span></p></div>
+    </section>
+  </main>
+  <script>
+    const { $, h } = UI;
+    const MON_Y = { 'Khai Môn': 'Khai trương, cầu quan, gặp quý nhân', 'Hưu Môn': 'Nghỉ ngơi, cầu tài nhẹ, yết kiến, hòa giải',
+      'Sinh Môn': 'Cầu tài, buôn bán, xây dựng, mưu sự sinh lợi', 'Cảnh Môn': 'Thi cử, văn thư, quảng bá — kỵ việc ngầm',
+      'Đỗ Môn': 'Ẩn tàng, giữ bí mật, phòng thủ', 'Thương Môn': 'Đòi nợ, săn bắt, thi đấu — kỵ khởi sự',
+      'Tử Môn': 'Tang chế, điếu viếng — đại kỵ mọi việc', 'Kinh Môn': 'Kiện tụng, khiếu nại — dễ kinh sợ, thị phi' };
+    const pad = (n) => String(n).padStart(2, '0');
+    function setNow() { const n = new Date(); $('#dt').value = `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`; $('#tm').value = `${pad(n.getHours())}:${pad(n.getMinutes())}`; }
+    function build() {
+      const [y, m, d] = $('#dt').value.split('-').map(Number), [hh, mi] = $('#tm').value.split(':').map(Number);
+      const k = VQ.kyMon(d, m, y, hh, mi);
+      $('#info').innerHTML = '';
+      [['Tiết khí', `${k.tiet} · ${k.nguyen} nguyên`], ['Cục', k.label], ['Ngày / Giờ', `${k.dayText} · ${k.hourText}`],
+        ['Tuần thủ', k.tuanThu], ['Trực phù', k.trucPhu], ['Trực sử', k.trucSu]].forEach(([a, b]) =>
+        $('#info').append(h('div', { style: 'display:flex;justify-content:space-between;border-bottom:1px dashed var(--vq-line);padding:6px 0' }, h('span', { class: 'muted' }, a), h('b', {}, b))));
+      const P = $('#plate'); P.innerHTML = '';
+      k.palaces.forEach((g) => {
+        const cc = g.cat === 1 ? 'c1' : g.cat === 0 ? 'c0' : 'c05';
+        P.append(h('div', { class: 'gong' + (g.p === 5 ? ' zhong' : '') + (g.sao.startsWith(k.trucPhu) ? ' zhi' : '') },
+          h('div', { class: 'hd' }, h('span', { class: 'than' }, g.than || ''), h('span', {}, `${g.quai} · ${g.huong}`)),
+          h('div', { class: 'mid' }, h('div', {}, h('div', { class: 'sao' }, g.p === 5 ? 'Thiên Cầm' : g.sao), h('div', { class: 'mon ' + cc }, g.mon || '—')),
+            h('div', { class: 'nghi' }, h('div', { class: 't' }, g.p === 5 ? '' : g.thien), h('div', { class: 'd' }, g.dia))),
+          h('div', { class: 'small muted' }, g.p === 5 ? 'Ký cung Khôn nhị' : ''), h('span', { class: 'num' }, g.p)));
+      });
+      $('#advice').innerHTML = '';
+      const best = k.palaces.filter((g) => g.cat === 1);
+      $('#advice').append(h('table', { class: 'vq' }, h('tr', {}, h('th', {}, 'Cửa'), h('th', {}, 'Phương'), h('th', {}, 'Nên dùng')),
+        ...k.palaces.filter((g) => g.mon).sort((a, b) => b.cat - a.cat).map((g) => h('tr', {}, h('td', { class: g.cat === 1 ? 'ok' : g.cat === 0 ? 'ng' : '' }, h('b', {}, g.mon)),
+          h('td', {}, `${g.huong} (${g.quai})`), h('td', { class: 'small' }, MON_Y[g.mon])))));
+      $('#advice').prepend(h('p', {}, 'Giờ này nên xuất hành / mưu sự về: ', h('b', { class: 'ok' }, best.map((g) => `${g.huong} (${g.mon})`).join(' · '))));
+    }
+    $('#now').onclick = () => { setNow(); build(); };
+    $('#f').addEventListener('submit', (e) => { e.preventDefault(); build(); });
+    setNow(); build();
+  </script>
+  <style>.ok{color:var(--vq-luc)}.ng{color:var(--vq-son)}</style>
+</body>
+</html>

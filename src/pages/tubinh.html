@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Tử Bình Tứ Trụ · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .bazi { display: grid; grid-template-columns: 110px repeat(4, minmax(0, 1fr)); border: 2px solid var(--vq-ink); background: var(--vq-card); }
+    .bazi > div { border: 1px solid var(--vq-line); padding: 8px 6px; text-align: center; }
+    .bazi .lh { text-align: right; color: var(--vq-ink-soft); font-size: 12.5px; font-family: var(--font-display); display: flex; align-items: center; justify-content: flex-end; }
+    .bazi .hd { font-family: var(--font-display); font-weight: 700; background: var(--vq-bg-deep); letter-spacing: .1em; text-transform: uppercase; font-size: 13px; }
+    .bazi .big { font-family: var(--font-han); font-size: 15px; }
+    .bazi .big b { display: block; font-family: var(--font-display); font-size: 34px; line-height: 1.1; }
+    .bazi .dm { background: color-mix(in srgb, var(--vq-son) 9%, transparent); }
+    .tc { font-size: 12.5px; line-height: 1.5; }
+    .bar { display: grid; grid-template-columns: 54px 1fr 40px; align-items: center; gap: 10px; margin: 8px 0; }
+    .bar .track { height: 12px; background: var(--vq-bg-deep); border-radius: 99px; overflow: hidden; }
+    .bar .fill { height: 100%; border-radius: 99px; transition: width .6s; }
+    .dv { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; }
+    @media (max-width: 860px) { .dv { grid-template-columns: repeat(4, 1fr); } }
+    .dv div { border: 1px solid var(--vq-line-strong); border-radius: 10px; padding: 8px 4px; text-align: center; background: var(--vq-bg); }
+    .dv div.now { border-color: var(--vq-son); box-shadow: inset 0 0 0 1px var(--vq-son); }
+    .dv b { font-family: var(--font-display); font-size: 17px; display: block; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rel { display: grid; gap: 4px; font-size: 13.5px; }
+    .rel span { display: inline-block; min-width: 46px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .rel .t-hop { color: var(--vq-luc); } .rel .t-xung { color: var(--vq-son); } .rel .t-hinh { color: var(--vq-gold-strong); } .rel .t-hai { color: var(--vq-cham); }
+    .ts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13.5px; }
+    .ts b { font-family: var(--font-display); }
+    .ln { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .ln > div { border: 1px solid var(--vq-line-strong); border-radius: 10px; padding: 8px; text-align: center; background: var(--vq-bg); }
+    .ln > div.now { border-color: var(--vq-son); box-shadow: inset 0 0 0 1px var(--vq-son); }
+    .ln b { font-family: var(--font-display); font-size: 18px; display: block; }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">子平</span>
+    <div class="kicker">Bát tự · Tứ trụ · Thập thần</div>
+    <h1>Tử Bình <em>Tứ Trụ</em></h1>
+    <p class="motto">«Năm là gốc, tháng là mầm, ngày là hoa, giờ là quả»</p>
+  </header>
+  <main class="wrap split">
+    <aside class="card card--corner">
+      <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">BÁT<br>TỰ</span>
+        <div><h2>Lập Tứ Trụ</h2><p>Theo tiết khí (Lập Xuân đổi năm)</p></div></div>
+      <form class="form" id="f">
+        <div class="row"><select class="field" id="d"></select><select class="field" id="m"></select><select class="field" id="y"></select></div>
+        <div class="row">
+          <div><label class="lb">Giờ</label><input class="field" type="number" id="hh" min="0" max="23" value="12"></div>
+          <div><label class="lb">Phút</label><input class="field" type="number" id="mi" min="0" max="59" value="0"></div>
+        </div>
+        <div class="pill-group">
+          <input type="radio" name="gt" id="g1" value="nam" checked><label for="g1">Nam</label>
+          <input type="radio" name="gt" id="g2" value="nu"><label for="g2">Nữ</label>
+        </div>
+        <button class="btn">✦ Lập Bát Tự</button>
+      </form>
+      <p class="note mt">Ngày dương lịch, giờ địa phương (GMT+7). Giờ Tý muộn (23h) tính sang ngày kế. Lực ngũ hành: thiên can 1.0; tàng can chính khí 1.0 · trung khí 0.5 · dư khí 0.3; riêng chi tháng (nguyệt lệnh) nhân đôi.</p>
+    </aside>
+    <section>
+      <div class="bazi" id="bazi"></div>
+      <div class="grid g2 mt">
+        <div class="card"><h3>Ngũ hành lực lượng</h3><div id="hanh" class="mt"></div><p id="strength" class="small mt"></p></div>
+        <div class="card"><h3>Nhật chủ</h3><div id="dm" class="mt"></div></div>
+      </div>
+      <div class="grid g2 mt">
+        <div class="card"><h3>Thần sát</h3><div id="ts" class="ts mt"></div></div>
+        <div class="card"><h3>Hợp · Xung · Hình · Hại</h3><div id="rel" class="rel mt"></div></div>
+      </div>
+      <div class="card mt"><h3>Đại vận <span class="small muted" id="dvinfo"></span></h3><div class="dv mt" id="dv"></div><p class="small mt" id="dvnow"></p></div>
+      <div class="card mt"><h3>Lưu niên <span class="small muted">· can chi năm so với Nhật chủ</span></h3><div class="ln mt" id="ln"></div></div>
+    </section>
+  </main>
+  <script>
+    const { $, h, hanhSpan } = UI;
+    const COLORS = { 'Mộc': 'var(--h-moc)', 'Hỏa': 'var(--h-hoa)', 'Thổ': 'var(--h-tho)', 'Kim': 'var(--h-kim)', 'Thủy': 'var(--h-thuy)' };
+    const DM_DESC = {
+      'Giáp': 'Cây đại thụ — chính trực, vươn lên, có chí lớn, cứng mà dễ gãy.', 'Ất': 'Hoa cỏ, dây leo — mềm mại, khéo léo, giỏi thích nghi.',
+      'Bính': 'Mặt trời — nhiệt huyết, hào phóng, sáng rỡ, thích được chú ý.', 'Đinh': 'Ngọn đèn — ấm áp, tinh tế, sâu sắc, soi đường cho người.',
+      'Mậu': 'Núi lớn — vững chãi, đáng tin, bao dung, đôi khi cố chấp.', 'Kỷ': 'Ruộng vườn — nuôi dưỡng, chu đáo, thực tế, đa nghi nhẹ.',
+      'Canh': 'Kim loại thô, đao kiếm — cương quyết, nghĩa khí, cần lửa rèn.', 'Tân': 'Châu ngọc — tinh xảo, trọng thể diện, nhạy cảm.',
+      'Nhâm': 'Sông biển — phóng khoáng, thông minh, linh hoạt, khó nắm bắt.', 'Quý': 'Mưa móc — nhu hòa, trực giác tốt, kín đáo, thấm sâu.',
+    };
+    const p = UI.profile.get() || {};
+    UI.fillDate({ day: $('#d'), month: $('#m'), year: $('#y') }, p);
+    if (p.hour != null) $('#hh').value = p.hour * 2;
+    if (p.gender === 'nu') $('#g2').checked = true;
+
+    function build() {
+      const dd = +$('#d').value, mm = +$('#m').value, yy = +$('#y').value, hh = +$('#hh').value, mi = +$('#mi').value;
+      const gender = $('#g2').checked ? 'nu' : 'nam';
+      const t = VQ.tuTru(dd, mm, yy, hh, mi, gender);
+      const B = $('#bazi'); B.innerHTML = '';
+      const cell = (cls, ...k) => B.append(h('div', { class: cls }, ...k));
+      cell('lh', ''); t.pillars.forEach((x) => cell('hd' + (x.label === 'Ngày' ? ' dm' : ''), 'Trụ ' + x.label));
+      cell('lh', 'Thập thần'); t.pillars.forEach((x) => cell(x.label === 'Ngày' ? 'dm' : '', h('b', { style: 'color:var(--vq-son)' }, x.thapThan)));
+      cell('lh', 'Thiên can'); t.pillars.forEach((x) => cell('big' + (x.label === 'Ngày' ? ' dm' : ''), h('b', {}, hanhSpan(x.canHanh, VQ.CAN[x.can])), x.canHanh));
+      cell('lh', 'Địa chi'); t.pillars.forEach((x) => cell('big' + (x.label === 'Ngày' ? ' dm' : ''), h('b', {}, hanhSpan(x.chiHanh, VQ.CHI[x.chi])), x.chiHanh + ' · ' + VQ.CON_GIAP[x.chi]));
+      cell('lh', 'Tàng can'); t.pillars.forEach((x) => cell('tc' + (x.label === 'Ngày' ? ' dm' : ''), x.tangCan.map((c) => h('div', {}, hanhSpan(c.hanh, c.can), h('span', { class: 'muted' }, ' · ' + c.thapThan)))));
+      cell('lh', 'Nạp âm'); t.pillars.forEach((x) => cell('tc' + (x.label === 'Ngày' ? ' dm' : ''), x.napAm));
+      cell('lh', 'Trường sinh'); t.pillars.forEach((x) => cell('tc' + (x.label === 'Ngày' ? ' dm' : ''), x.truongSinh));
+
+      const max = Math.max(...t.count.map((c) => c.value));
+      $('#hanh').innerHTML = '';
+      t.count.forEach((c) => $('#hanh').append(h('div', { class: 'bar' }, hanhSpan(c.hanh, h('b', {}, c.hanh)),
+        h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${(c.value / max) * 100}%;background:${COLORS[c.hanh]}` })), h('span', { class: 'mono small' }, c.value))));
+      const lack = t.count.filter((c) => c.value < 0.5).map((c) => c.hanh);
+      $('#strength').innerHTML = '';
+      $('#strength').append(h('b', {}, t.strength), ` — sinh trợ ${Math.round(t.ratio * 100)}% (${t.support}) / tiết hao ${t.drain}.`, lack.length ? ` Khuyết: ` : '', lack.length ? h('b', {}, lack.join(', ')) : '', lack.length ? '.' : '');
+      const dm = t.nhatChu;
+      $('#dm').innerHTML = '';
+      $('#dm').append(h('div', { style: 'display:flex;gap:16px;align-items:center' },
+        h('span', { class: 'seal seal--fill', style: 'width:64px;height:64px;font-size:22px' }, dm.can),
+        h('div', {}, h('div', { style: 'font-family:var(--font-display);font-size:22px;font-weight:700' }, `${dm.amDuong} ${dm.hanh}`), h('div', { class: 'muted' }, DM_DESC[dm.can]))),
+        h('p', { class: 'small mt' }, `Sinh trong tiết ${t.tietKhi}. Nhật chủ ở thế `, h('b', {}, t.lenh), ` theo nguyệt lệnh — ${t.dacLenh ? 'đắc lệnh (được mùa sinh trợ)' : 'thất lệnh (sinh không gặp mùa)'}.`),
+        h('div', { class: 'small mt' }, h('b', {}, 'Dụng thần gợi ý: '), h('span', { class: 'chips', style: 'display:inline-flex;vertical-align:middle' }, t.dungThan.map((x) => h('span', { class: 'chip', style: `border-color:${COLORS[x]};color:${COLORS[x]}` }, x)))),
+        h('p', { class: 'small muted' }, t.strength.startsWith('Thân vượng') ? 'Thân vượng: ưa hành tiết / khắc Nhật chủ (Thực Thương, Tài, Quan Sát).' : t.strength.startsWith('Thân nhược') ? 'Thân nhược: ưa hành sinh / trợ Nhật chủ (Ấn, Tỷ Kiếp).' : 'Trung hòa: giữ cân bằng, dùng hành thông quan.'),
+        h('p', { class: 'small' }, h('b', {}, 'Không vong (trụ ngày): '), t.khongVong.join(', ')));
+      $('#ts').innerHTML = '';
+      if (!t.thanSat.length) $('#ts').append(h('span', { class: 'muted', style: 'grid-column:1/-1' }, 'Không gặp thần sát chính.'));
+      t.thanSat.forEach((x) => $('#ts').append(h('b', {}, x.name), h('span', {}, h('span', { class: 'muted' }, 'trụ ' + x.at.join(', ') + ' — '), x.desc)));
+      $('#rel').innerHTML = '';
+      if (!t.quanHe.length) $('#rel').append(h('span', { class: 'muted' }, 'Các trụ không có hợp, xung, hình, hại đáng kể.'));
+      const TCLS = { 'hợp': 't-hop', 'xung': 't-xung', 'hình': 't-hinh', 'hại': 't-hai' };
+      t.quanHe.forEach((x) => $('#rel').append(h('div', {}, h('span', { class: TCLS[x.type] }, x.type), x.text)));
+      const curYear = new Date().getFullYear(), age = curYear - yy + 1;
+      $('#dvinfo').textContent = `· ${t.forward ? 'Thuận' : 'Nghịch'} hành · khởi vận ${t.startAge} tuổi`;
+      $('#dv').innerHTML = '';
+      t.daiVan.forEach((v) => $('#dv').append(h('div', { class: age >= v.age && age < v.age + 10 ? 'now' : '' },
+        h('small', { class: 'muted' }, v.age + '–' + (v.age + 9)), h('b', {}, v.text), h('small', { style: 'color:var(--vq-son)' }, v.thapThan))));
+      const cur = t.daiVan.find((v) => age >= v.age && age < v.age + 10);
+      $('#dvnow').innerHTML = '';
+      if (cur) $('#dvnow').append(h('b', {}, `Đại vận hiện tại (${age} tuổi): `), `${cur.text} · ${cur.napAm} — can là `, h('b', { style: 'color:var(--vq-son)' }, cur.thapThan), ' của Nhật chủ.');
+      else $('#dvnow').append(h('span', { class: 'muted' }, age < t.startAge ? `Chưa vào vận (khởi vận ${t.startAge} tuổi).` : 'Ngoài tám đại vận đầu.'));
+      $('#ln').innerHTML = '';
+      [0, 1, 2].forEach((k) => { const L = VQ.luuNien(curYear + k, t.dayCan);
+        $('#ln').append(h('div', { class: k === 0 ? 'now' : '' }, h('small', { class: 'muted' }, `Năm ${L.year}`), h('b', {}, L.text), h('small', {}, L.napAm),
+          h('div', { class: 'small', style: 'color:var(--vq-son)' }, `${L.thapThan} · chi ${L.chiThapThan}`))); });
+    }
+    $('#f').addEventListener('submit', (e) => { e.preventDefault(); build(); });
+    build();
+  </script>
+</body>
+</html>

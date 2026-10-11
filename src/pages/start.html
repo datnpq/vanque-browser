@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Thiên Môn · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .hero { text-align: center; padding: 56px 0 26px; position: relative; overflow: hidden; }
+    .hero .brand { display: inline-flex; align-items: center; gap: 18px; }
+    .hero .seal { width: 74px; height: 74px; font-size: 20px; }
+    .hero h1 { font-size: clamp(48px, 8vw, 92px); font-weight: 800; letter-spacing: .03em; }
+    .hero h1 em { font-style: normal; color: var(--vq-son); }
+    .hero .motto { font-style: italic; color: var(--vq-ink-soft); margin-top: 6px; font-size: 17px; }
+    .search { max-width: 640px; margin: 26px auto 0; display: flex; gap: 0; background: var(--vq-card); border: 1.5px solid var(--vq-line-strong); border-radius: 14px; box-shadow: var(--vq-shadow); overflow: hidden; }
+    .search:focus-within { border-color: var(--vq-gold); }
+    .search span { display: grid; place-items: center; padding: 0 14px; color: var(--vq-gold-strong); font-size: 22px; }
+    .search input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 16px; padding: 15px 4px; color: var(--vq-ink); outline: none; }
+    .search button { border: 0; background: var(--vq-son); color: var(--vq-card); font-family: var(--font-display); font-weight: 700; padding: 0 22px; cursor: pointer; font-size: 15px; letter-spacing: .05em; }
+    .thoi { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; }
+    @media (max-width: 900px) { .thoi { grid-template-columns: 1fr; } }
+    .clock { font-family: var(--font-display); font-size: 54px; font-weight: 700; letter-spacing: .04em; line-height: 1; }
+    .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+    .pillar { text-align: center; border: 1px solid var(--vq-line); border-radius: 10px; padding: 10px 4px; background: var(--vq-bg); }
+    .pillar small { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--vq-ink-soft); }
+    .pillar b { font-family: var(--font-display); font-size: 21px; display: block; margin-top: 2px; }
+    .gio { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .gio .chip.now { background: var(--vq-son); color: var(--vq-card); border-color: var(--vq-son); }
+    .que-day { display: flex; gap: 22px; align-items: center; }
+    .stat { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--vq-line); font-size: 14px; }
+    .stat:last-child { border: 0; }
+    .tops { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .top { display: grid; justify-items: center; gap: 6px; padding: 12px 8px; border-radius: 12px; color: var(--vq-ink); text-align: center; font-size: 12.5px; }
+    .top:hover { background: var(--vq-card); text-decoration: none; box-shadow: var(--vq-shadow); }
+    .top span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .top .site-ico { width: 44px; height: 44px; font-size: 19px; border-radius: 12px; }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="brand rise">
+      <span class="seal seal--fill stamp-in">VÂN<br>QUẺ</span>
+      <h1>Vân <em>Quẻ</em></h1>
+    </div>
+    <p class="motto">«Vân khởi quẻ thành — Lý số tại tâm»</p>
+    <p class="small muted mono" style="letter-spacing:.22em;text-transform:uppercase;margin-top:6px">Tử Vi · Tử Bình · Bát Trạch · Kỳ Môn · Hà Đồ Lạc Thư · Kinh Dịch</p>
+    <form class="search" id="search">
+      <span>☯</span>
+      <input id="q" placeholder="Tìm trên mạng, nhập địa chỉ, hoặc gõ  vq:tuvi  ·  vq:lich …" autocomplete="off" autofocus aria-label="Tìm kiếm">
+      <button>Vấn</button>
+    </form>
+    <div style="width:80px;margin:24px auto 0;display:grid;gap:6px"><i class="hao"></i><i class="hao hao--broken"></i><i class="hao"></i></div>
+  </section>
+
+  <main class="wrap">
+    <section class="que-rack rise" id="rack"></section>
+    <section class="mt2" id="tops" hidden><h3 class="small muted mono" style="letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px">Trang hay ghé</h3><div class="tops" id="topsList"></div></section>
+
+    <section class="thoi mt2">
+      <div class="card card--corner">
+        <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">THIÊN<br>THỜI</span>
+          <div><h2>Thiên Thời hôm nay</h2><p id="tiet"></p></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:12px">
+          <div><div class="clock" id="clock">--:--</div><div class="muted" id="solar"></div></div>
+          <div style="text-align:right"><div style="font-family:var(--font-display);font-size:26px;font-weight:700" id="lunar"></div><div class="muted small" id="lunarYear"></div></div>
+        </div>
+        <div class="pillars" id="pillars"></div>
+        <div class="mt"><b style="font-family:var(--font-display)">Giờ hoàng đạo</b> <span class="small muted" id="truc"></span>
+          <div class="gio" id="gio"></div></div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">MAI<br>HOA</span>
+            <div><h2>Quẻ của giờ này</h2><p>Mai Hoa Dịch Số · lập quẻ theo thời gian</p></div></div>
+          <div class="que-day" id="queDay"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="seal" style="width:44px;height:44px;font-size:11px">CỬU<br>TINH</span>
+            <div><h2>Phi tinh năm <span id="py"></span></h2><p>Huyền Không · sao nhập trung cung</p></div></div>
+          <div id="phi"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const { $, h, drawHex } = UI;
+    const MODS = [
+      ['☰', 'Tử Vi Đẩu Số', 'Lập lá số 12 cung, an 100+ sao', 'tuvi.html'],
+      ['☷', 'Tử Bình Tứ Trụ', 'Bát tự, thập thần, đại vận', 'tubinh.html'],
+      ['☶', 'Bát Trạch Minh Cảnh', 'Cung phi, hướng nhà tốt xấu', 'battrach.html'],
+      ['☵', 'Kỳ Môn Độn Giáp', 'Cửu cung · bát môn · cửu tinh', 'kymon.html'],
+      ['☲', 'Hà Đồ Lạc Thư', 'Số trời, ma phương, phi tinh', 'hadolacthu.html'],
+      ['☳', 'Kinh Dịch', 'Gieo xu, Mai Hoa, 64 quẻ', 'kinhdich.html'],
+      ['☴', 'Vạn Niên Lịch', 'Âm lịch, ngày giờ hoàng đạo', 'lich.html'],
+      ['☱', 'Ngũ Hành', 'Sinh khắc, nạp âm 60 hoa giáp', 'nguhanh.html'],
+    ];
+    MODS.forEach(([s, t, d, u], i) => $('#rack').append(h('a', { class: 'que-stick', href: u, style: `transform:rotate(${(i % 2 ? .4 : -.5)}deg)` },
+      h('span', { class: 'que-stick__head' }), h('span', { class: 'sym' }, s), h('b', {}, t), h('span', {}, d))));
+
+    // Tìm kiếm theo máy tìm kiếm đã chọn trong Cài đặt
+    let engineUrl = 'https://www.google.com/search?q=%s', engineName = 'Google';
+    UI.api('settings').then((r) => { const e = r.engines[r.settings.searchEngine]; if (e) { engineUrl = e.url; engineName = e.name; $('#q').placeholder = `Tìm trên ${engineName}, nhập địa chỉ, hoặc gõ  vq:tuvi  ·  vq:lich …`; } }).catch(() => {});
+    $('#search').addEventListener('submit', (e) => {
+      e.preventDefault(); const q = $('#q').value.trim(); if (!q) return;
+      const vq = /^vq:\/*([\w-]+)/i.exec(q);
+      if (vq) location.href = vq[1].toLowerCase() + '.html';
+      else if (/^https?:\/\//i.test(q)) location.href = q;
+      else if (/^[^\s/]+\.[a-z¡-￿]{2,}(:\d+)?([/?#]\S*)?$/i.test(q)) location.href = 'https://' + q;
+      else location.href = engineUrl.replace('%s', encodeURIComponent(q));
+    });
+    // Trang hay ghé (từ lịch sử, không tải favicon từ mạng)
+    UI.api('topsites', { limit: 8 }).then((list) => {
+      list = list.filter((x) => /^https?:/.test(x.url));
+      if (!list.length) return;
+      $('#tops').hidden = false;
+      list.forEach((x) => $('#topsList').append(h('a', { class: 'top', href: x.url, title: x.url }, UI.siteIcon(x.url, x.title), h('span', {}, x.title || UI.hostOf(x.url)))));
+    }).catch(() => {});
+
+    let lastKey = '';
+    function tick() {
+      const n = new Date(), dd = n.getDate(), mm = n.getMonth() + 1, yy = n.getFullYear(), hr = n.getHours();
+      $('#clock').textContent = n.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const key = `${dd}-${mm}-${yy}-${VQ.hourChi(hr)}`; if (key === lastKey) return; lastKey = key;
+      const d = VQ.dayInfo(dd, mm, yy, hr);
+      $('#solar').textContent = `${d.weekday}, ${dd}/${mm}/${yy}`;
+      $('#lunar').textContent = `${d.lunar.day} tháng ${d.lunar.month}${d.lunar.leap ? ' (nhuận)' : ''}`;
+      $('#lunarYear').textContent = `Âm lịch · năm ${d.year.text} (${VQ.CON_GIAP[d.year.chi]})`;
+      $('#tiet').textContent = `Tiết ${d.tietKhi.name} · Kinh độ mặt trời ${d.tietKhi.deg.toFixed(2)}°`;
+      $('#pillars').innerHTML = '';
+      [['Năm', d.year], ['Tháng', d.month], ['Ngày', d.day], ['Giờ', d.hour]].forEach(([l, p]) => $('#pillars').append(
+        h('div', { class: 'pillar' }, h('small', {}, l), h('b', {}, UI.hanhSpan(VQ.HANH[VQ.CAN_HANH[p.can]], VQ.CAN[p.can]), ' ', UI.hanhSpan(VQ.HANH[VQ.CHI_HANH[p.chi]], VQ.CHI[p.chi])),
+          h('small', { style: 'letter-spacing:0;text-transform:none' }, VQ.napAm(p.can, p.chi)))));
+      $('#truc').textContent = `· Ngày ${d.ngay.than} (${d.ngay.hoangDao ? 'Hoàng đạo ✦' : 'Hắc đạo'}) · Trực ${d.truc.name} · Sao ${d.tu.full}`;
+      $('#gio').innerHTML = '';
+      d.gioHoangDao.forEach((z) => $('#gio').append(h('span', { class: 'chip chip--gold' + (z === d.hour.chi ? ' now' : '') }, `${VQ.CHI[z]} ${VQ.GIO_RANGE[z]}`)));
+      // Mai hoa
+      const mh = VQ.maiHoa(dd, mm, yy, hr), q = mh.chinh;
+      $('#queDay').innerHTML = '';
+      $('#queDay').append(drawHex(q.lines, mh.moving, 84), h('div', {},
+        h('div', { class: 'small muted' }, `Quẻ ${q.number} · ${q.upper.sym} ${q.upper.tuong} trên ${q.lower.sym} ${q.lower.tuong}`),
+        h('div', { style: 'font-family:var(--font-display);font-size:24px;font-weight:700' }, q.name),
+        h('div', { class: 'muted' }, q.meaning),
+        h('div', { class: 'small mt' }, 'Biến → ', h('b', {}, mh.bien ? mh.bien.name : '—'), ' · Hỗ → ', h('b', {}, mh.ho.name)),
+        h('a', { class: 'small', href: 'kinhdich.html' }, 'Luận sâu trong Kinh Dịch →')));
+      // Phi tinh năm
+      const sy = VQ.solarYearAt(dd, mm, yy), ys = VQ.yearStarAt(dd, mm, yy), map = VQ.phiTinh(ys); $('#py').textContent = sy;
+      const g = h('div', { style: 'display:grid;grid-template-columns:repeat(3,1fr);gap:6px' });
+      [4, 9, 2, 3, 5, 7, 8, 1, 6].forEach((p) => {
+        const s = map[p];
+        g.append(h('div', { class: 'pillar', style: s === 5 ? 'border-color:var(--vq-son)' : s === 8 || s === 9 || s === 1 ? 'border-color:var(--vq-gold)' : '' },
+          h('small', {}, p === 5 ? 'Trung' : VQ.QUAI_HUONG[p]), h('b', {}, s), h('small', { style: 'letter-spacing:0;text-transform:none' }, VQ.CUU_TINH[s].split(' · ')[0])));
+      });
+      $('#phi').innerHTML = ''; $('#phi').append(g);
+    }
+    tick(); setInterval(tick, 1000);
+  </script>
+</body>
+</html>

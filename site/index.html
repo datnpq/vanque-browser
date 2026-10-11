@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trình duyệt Vân Quẻ</title>
+<meta name="description" content="Vân Quẻ — trình duyệt huyền học Phương Đông: Tử Vi, Tử Bình, Kinh Dịch, Vạn Niên Lịch, Bát Trạch, Kỳ Môn tích hợp sẵn, chạy ngoại tuyến. Tải miễn phí cho Windows.">
+<meta name="theme-color" content="#f4ecd9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14110c" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Trình duyệt Vân Quẻ">
+<meta property="og:description" content="Lướt web với thiên thời trong tay. Tử Vi, Tử Bình, Kinh Dịch, Vạn Niên Lịch tích hợp sẵn — chạy ngoại tuyến.">
+<meta property="og:image" content="https://vanque.pages.dev/img/start-light.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="/img/icon.png">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+:root {
+  --bg: #f4ecd9; --bg-deep: #ece0c4; --card: #fbf6e9;
+  --ink: #241c12; --ink-soft: #5c4d38;
+  --son: #b23a2a; --son-deep: #8f2e21; --gold: #b8860b; --cham: #2e4a6b; --luc: #2e7d5b;
+  --line: #d8c9a6; --line-strong: #b9a377;
+  --on-son: #fff8ec;
+  --shadow: 0 1px 0 #5a46281f, 0 24px 60px -32px #3c2d1499;
+  --display: 'Phudu', 'Be Vietnam Pro', system-ui, sans-serif;
+  --sans: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  --han: 'Noto Serif TC', 'PMingLiU', 'SimSun', 'Songti TC', 'Microsoft JhengHei', serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14110c; --bg-deep: #0d0b07; --card: #1e1912;
+    --ink: #efe4c6; --ink-soft: #b7a47f;
+    --son: #e06a50; --son-deep: #eb8a74; --gold: #d9ae52; --cham: #8fb0d6; --luc: #6fbf9a;
+    --line: #3a3222; --line-strong: #57492e; --on-son: #1a120b;
+    --shadow: 0 1px 0 #00000080, 0 24px 60px -30px #000000e6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14110c; --bg-deep: #0d0b07; --card: #1e1912;
+  --ink: #efe4c6; --ink-soft: #b7a47f;
+  --son: #e06a50; --son-deep: #eb8a74; --gold: #d9ae52; --cham: #8fb0d6; --luc: #6fbf9a;
+  --line: #3a3222; --line-strong: #57492e; --on-son: #1a120b;
+  --shadow: 0 1px 0 #00000080, 0 24px 60px -30px #000000e6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { max-width: 100%; display: block; }
+a { color: var(--son); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; letter-spacing: -.01em; }
+p { margin: 0; }
+.wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
+.eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
+.han { font-family: var(--han); }
+:focus-visible { outline: 2px solid var(--son); outline-offset: 3px; border-radius: 6px; }
+
+/* ── Thanh trên ── */
+.nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font: 800 20px/1 var(--display); letter-spacing: .02em; }
+.brand:hover { text-decoration: none; }
+.brand img { width: 34px; height: 34px; border-radius: 9px; }
+.brand b { color: var(--son); font-weight: 800; }
+.nav ul { display: flex; gap: 22px; list-style: none; margin: 0 auto 0 0; padding: 0; }
+.nav ul a { color: var(--ink-soft); font-weight: 500; font-size: 15px; }
+.nav ul a:hover { color: var(--ink); text-decoration: none; }
+.iconbtn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; display: grid; place-items: center; }
+.iconbtn:hover { border-color: var(--line-strong); }
+.iconbtn svg { width: 18px; height: 18px; }
+
+/* ── Nút ── */
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px; font: 700 16px/1 var(--sans); border: 0; cursor: pointer; transition: transform .15s, background .15s, box-shadow .15s; }
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-primary { background: var(--son); color: var(--on-son); box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--son) 80%, transparent); }
+.btn-primary:hover { background: var(--son-deep); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+.btn-ghost:hover { border-color: var(--ink-soft); }
+.btn-sm { padding: 10px 18px; font-size: 14px; }
+.cta-meta { margin-top: 14px; font-size: 13.5px; color: var(--ink-soft); }
+.cta-meta a { font-weight: 600; }
+
+/* ── Hero ── */
+.hero { position: relative; padding: 72px 0 40px; overflow: hidden; }
+.hero::before { content: '雲卦'; position: absolute; right: -40px; top: 10px; font: 900 260px/1 var(--han); color: color-mix(in srgb, var(--gold) 9%, transparent); pointer-events: none; writing-mode: vertical-rl; }
+.hero .wrap { display: grid; grid-template-columns: 1fr; gap: 56px; text-align: center; justify-items: center; position: relative; }
+.hero h1 { font-size: clamp(44px, 7.4vw, 92px); font-weight: 800; text-transform: uppercase; }
+.hero h1 b { color: var(--son); font-weight: 800; }
+.hero .lead { font: 600 clamp(22px, 2.8vw, 32px)/1.25 var(--display); margin-top: 14px; }
+.hero .sub { max-width: 620px; margin: 18px auto 0; color: var(--ink-soft); font-size: 18px; }
+.hero .ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
+.os-note { margin-top: 14px; font-size: 14px; color: var(--ink-soft); max-width: 560px; }
+.os-note[hidden] { display: none; }
+
+/* Khung trình duyệt chứa ảnh chụp */
+.frame { width: 100%; max-width: 1080px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line-strong); box-shadow: var(--shadow); background: var(--card); }
+.frame img { width: 100%; height: auto; aspect-ratio: 1360 / 880; object-fit: cover; object-position: top; }
+.frame.tilt { transform: perspective(1800px) rotateX(5deg); transform-origin: top center; }
+
+/* ── Dải trust ── */
+.trust { border-block: 1px solid var(--line); background: var(--bg-deep); }
+.trust .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-block: 22px; text-align: center; }
+.trust b { display: block; font: 800 28px/1.1 var(--display); color: var(--son); }
+.trust span { font-size: 13.5px; color: var(--ink-soft); }
+
+section { padding: 96px 0; }
+.sec-head { text-align: center; max-width: 720px; margin: 0 auto 52px; }
+.sec-head h2 { font-size: clamp(32px, 4.4vw, 50px); margin-top: 12px; }
+.sec-head p { margin-top: 14px; color: var(--ink-soft); font-size: 17px; }
+
+/* ── Thẻ tính năng mới ── */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 28px; position: relative; }
+.card::before { content: ''; position: absolute; left: 18px; top: -1px; width: 38px; height: 3px; background: var(--son); border-radius: 0 0 3px 3px; }
+.card .ico { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--son) 12%, transparent); color: var(--son); margin-bottom: 18px; }
+.card .ico svg { width: 24px; height: 24px; }
+.card h3 { font-size: 22px; }
+.card p { margin-top: 10px; color: var(--ink-soft); font-size: 15px; }
+.card a { display: inline-block; margin-top: 14px; font-weight: 600; font-size: 14.5px; }
+
+/* ── Khối xen kẽ ── */
+.alt { display: grid; grid-template-columns: 1fr 1.25fr; gap: 64px; align-items: center; }
+.alt + .alt { margin-top: 110px; }
+.alt.rev > :first-child { order: 2; }
+.alt h3 { font-size: clamp(28px, 3.4vw, 40px); margin-top: 12px; }
+.alt p { margin-top: 16px; color: var(--ink-soft); font-size: 17px; }
+.alt ul { margin: 20px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.alt li { display: flex; gap: 10px; align-items: baseline; }
+.alt li::before { content: '✦'; color: var(--gold); font-size: 13px; flex: none; }
+.alt .frame { border-radius: 14px; }
+
+/* ── Lưới phân hệ ── */
+.modules { background: var(--bg-deep); border-block: 1px solid var(--line); }
+.mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.mod { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 8px; align-content: start; }
+.mod .tri { font-size: 26px; line-height: 1; color: var(--gold); }
+.mod h3 { font-size: 19px; }
+.mod code { font: 600 12.5px/1 ui-monospace, Consolas, monospace; color: var(--son); background: color-mix(in srgb, var(--son) 10%, transparent); padding: 4px 7px; border-radius: 6px; justify-self: start; }
+.mod p { font-size: 14px; color: var(--ink-soft); }
+
+/* ── Bảo mật ── */
+.privacy .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.seal { aspect-ratio: 1; max-width: 420px; width: 100%; justify-self: center; border-radius: 50%; border: 2px dashed var(--line-strong); display: grid; place-items: center; position: relative; }
+.seal::after { content: ''; position: absolute; inset: 26px; border-radius: 50%; border: 1px solid var(--line); }
+.seal div { width: 58%; aspect-ratio: 1; border-radius: 22px; background: var(--son); color: var(--on-son); display: grid; place-items: center; text-align: center; font: 800 clamp(30px, 4vw, 48px)/1.05 var(--display); transform: rotate(-6deg); box-shadow: var(--shadow); }
+.plist { display: grid; gap: 22px; margin-top: 28px; }
+.plist div { display: grid; grid-template-columns: 40px 1fr; gap: 14px; }
+.plist svg { width: 26px; height: 26px; color: var(--luc); margin-top: 2px; }
+.plist b { display: block; font-size: 17px; }
+.plist span { color: var(--ink-soft); font-size: 15px; }
+
+/* ── Tuỳ biến ── */
+.custom .wrap { display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; align-items: center; }
+.duo { position: relative; padding-bottom: 12%; }
+.duo .frame:last-child { position: absolute; width: 62%; right: -4%; bottom: 0; }
+.custom .item { padding: 20px 0; border-bottom: 1px solid var(--line); }
+.custom .item:first-of-type { border-top: 1px solid var(--line); margin-top: 26px; }
+.custom .item b { font: 700 20px/1.2 var(--display); }
+.custom .item p { margin-top: 6px; color: var(--ink-soft); }
+kbd { font: 600 12.5px/1 ui-monospace, Consolas, monospace; padding: 3px 6px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; background: var(--card); }
+
+/* ── Câu chuyện ── */
+.story { text-align: center; position: relative; overflow: hidden; }
+.story blockquote { margin: 0 auto; max-width: 820px; font: 700 clamp(26px, 3.6vw, 42px)/1.25 var(--display); }
+.story blockquote span { color: var(--son); }
+.story p.s { max-width: 640px; margin: 22px auto 0; color: var(--ink-soft); font-size: 17px; }
+.story .ctas { margin-top: 34px; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+/* ── Hỏi đáp ── */
+.faq { max-width: 820px; margin: 0 auto; }
+.faq details { border-bottom: 1px solid var(--line); padding: 4px 0; }
+.faq summary { cursor: pointer; list-style: none; padding: 18px 40px 18px 0; font: 700 19px/1.3 var(--display); position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; position: absolute; right: 6px; top: 14px; font: 400 28px/1 var(--sans); color: var(--son); transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { padding: 0 0 20px; color: var(--ink-soft); }
+
+/* ── Trung tâm tải ── */
+.dl { background: var(--bg-deep); border-top: 1px solid var(--line); }
+.dgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.dcol { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 26px; display: flex; flex-direction: column; gap: 12px; }
+.dcol h3 { font-size: 21px; display: flex; align-items: center; gap: 10px; }
+.dcol h3 svg { width: 22px; height: 22px; color: var(--ink-soft); }
+.dcol p { color: var(--ink-soft); font-size: 14.5px; }
+.dcol .btn { align-self: flex-start; margin-top: auto; }
+.dcol .size { font-size: 13px; color: var(--ink-soft); }
+.dcol.soon { opacity: .72; }
+.req { margin-top: 26px; text-align: center; font-size: 14px; color: var(--ink-soft); }
+
+/* ── Chân trang ── */
+footer { border-top: 1px solid var(--line); padding: 56px 0 36px; font-size: 14.5px; }
+footer .cols { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 32px; }
+footer h4 { margin: 0 0 12px; font: 700 13px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+footer ul a { color: var(--ink); }
+footer .tag { margin-top: 12px; color: var(--ink-soft); max-width: 300px; }
+footer .legal { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: var(--ink-soft); font-size: 13px; }
+
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } .btn { transition: none; } }
+
+@media (max-width: 960px) {
+  .nav ul { display: none; }
+  .nav .wrap { justify-content: space-between; gap: 12px; }
+  .cards, .dgrid { grid-template-columns: 1fr; }
+  .mgrid { grid-template-columns: repeat(2, 1fr); }
+  .alt, .privacy .wrap, .custom .wrap { grid-template-columns: 1fr; gap: 36px; }
+  .alt.rev > :first-child { order: 0; }
+  .alt + .alt { margin-top: 72px; }
+  .trust .wrap { grid-template-columns: repeat(2, 1fr); }
+  footer .cols { grid-template-columns: 1fr 1fr; }
+  section { padding: 72px 0; }
+  .hero::before { font-size: 160px; right: -30px; }
+}
+@media (max-width: 520px) {
+  .mgrid { grid-template-columns: 1fr; }
+  .nav .btn-sm span { display: none; }
+  .hero { padding-top: 48px; }
+  .frame.tilt { transform: none; }
+  footer .cols { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol id="i-win" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9C5.9 6.8 4 8 3.1 9.8c-1.9 3.3-.5 8.1 1.3 10.8.9 1.3 2 2.7 3.4 2.7 1.3-.1 1.9-.9 3.5-.9s2.1.9 3.5.8c1.4 0 2.3-1.3 3.2-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.9-1.1-3-4.3zM13.9 4.8c.7-.9 1.2-2.1 1.1-3.3-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.1.1 2.3-.6 3-1.5z"/></symbol>
+  <symbol id="i-linux" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="m8 9 2.5 2L8 13m5 0h3M9 21h6"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="/img/icon.png" alt="" width="34" height="34">Vân <b>Quẻ</b></a>
+    <ul>
+      <li><a href="#tinh-nang">Tính năng</a></li>
+      <li><a href="#ly-so">Lý số</a></li>
+      <li><a href="#bao-mat">Bảo mật</a></li>
+      <li><a href="#hoi-dap">Hỏi đáp</a></li>
+    </ul>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng / tối"><svg><use href="#i-moon"/></svg></button>
+    <a class="btn btn-primary btn-sm" href="#tai-xuong"><svg><use href="#i-dl"/></svg><span>Tải xuống</span></a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Phiên bản 2.0 · Miễn phí</p>
+        <h1 style="margin-top:16px">Trình duyệt <b>Vân Quẻ</b></h1>
+        <p class="lead">Lướt web với thiên thời trong tay.</p>
+        <p class="sub">Một trình duyệt nhanh, nhân Chromium, có sẵn Tử Vi, Tử Bình, Kinh Dịch và Vạn Niên Lịch. Lá số được tính ngay trên máy bạn; muốn mang sổ lá số theo mọi thiết bị thì đăng nhập bằng tài khoản tuvi.work.</p>
+        <div class="ctas">
+          <a class="btn btn-primary dl-main" href="#tai-xuong" data-dl="setup"><svg><use href="#i-dl"/></svg>Tải Vân Quẻ cho Windows</a>
+          <a class="btn btn-ghost" href="#tinh-nang">Xem có gì mới</a>
+        </div>
+        <p class="cta-meta">Windows 10 / 11 · 64-bit · <a href="#tai-xuong" data-dl="portable">Bản chạy ngay, không cần cài</a></p>
+        <p class="os-note" id="osNote" hidden></p>
+      </div>
+      <div class="frame tilt">
+        <picture>
+          <source srcset="/img/start-dark.png" media="(prefers-color-scheme: dark)" data-themed>
+          <img src="/img/start-light.png" alt="Trang Thiên Môn của Vân Quẻ: ô tìm kiếm, tám phân hệ lý số và thiên thời hôm nay" width="1360" height="880" fetchpriority="high">
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust">
+    <div class="wrap">
+      <div><b>8</b><span>phân hệ lý số tích hợp</span></div>
+      <div><b>102</b><span>sao Tử Vi, kể cả sao lưu niên</span></div>
+      <div><b>0</b><span>quảng cáo, công cụ theo dõi</span></div>
+      <div><b>Chromium 152</b><span>nhân trình duyệt mới nhất</span></div>
+    </div>
+  </div>
+
+  <section id="tinh-nang">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Có gì mới trong 2.0</p>
+        <h2>Viết lại từ đầu, cho cả trình duyệt lẫn lý số</h2>
+      </div>
+      <div class="cards">
+        <article class="card reveal">
+          <div class="ico"><svg><use href="#i-check"/></svg></div>
+          <h3>Hỏi trước khi cho quyền</h3>
+          <p>Trang web muốn dùng vị trí, camera, micro hay gửi thông báo đều phải xin phép. Bạn chọn cho phép một lần hoặc nhớ cho trang đó.</p>
+          <a href="#bao-mat">Về bảo mật →</a>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M8 5V3m8 2V3"/></svg></div>
+          <h3>Thẻ gọn, phiên được nhớ</h3>
+          <p>Kéo-thả, ghim, tắt tiếng thẻ. Mở lại đúng chỗ bạn dừng — thẻ cũ chỉ tải khi bạn bấm vào, nên khởi động vẫn nhanh.</p>
+          <a href="#tuy-bien">Thêm tiện ích →</a>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a4.5 4.5 0 0 1 0 9 4.5 4.5 0 0 0 0 9"/><circle cx="12" cy="7.5" r="1" fill="currentColor"/><circle cx="12" cy="16.5" r="1"/></svg></div>
+          <h3>Lý số sâu hơn</h3>
+          <p>Tử Vi 93 sao cùng Tứ Hóa lưu niên, Tử Bình theo nguyệt lệnh, Kinh Dịch tự luận Thể–Dụng, lịch có 12 Trực và 28 Tú.</p>
+          <a href="#ly-so">Xem các phân hệ →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Lập quẻ ngay trong thẻ mới</p>
+        <h2>Xem lá số của mình, ngay trong thẻ mới</h2>
+        <p>Tò mò năm nay vận mình ra sao, hôm nay ngày tốt hay xấu? Gõ <code>vq:tuvi</code> lên thanh địa chỉ là có lá số, không phải đi tìm trang web lạ.</p>
+      </div>
+
+      <div class="alt reveal">
+        <div>
+          <p class="eyebrow">紫微斗數 · Tử Vi Đẩu Số</p>
+          <h3>Lá số 12 cung, an đủ sao trong tích tắc</h3>
+          <p>Nhập ngày giờ sinh dương hoặc âm lịch, Vân Quẻ an chính tinh, phụ tinh, vòng Bác Sĩ, vòng Thái Tuế và sao lưu niên cho năm bạn muốn xem.</p>
+          <ul>
+            <li>Tứ Hóa gốc và Tứ Hóa lưu niên, Tuần – Triệt</li>
+            <li>Đại hạn, tiểu hạn, tam phương tứ chính</li>
+            <li>Công thức an sao đối chiếu với nguồn lasotuvi</li>
+          </ul>
+        </div>
+        <div class="frame"><picture><source srcset="/img/tuvi-dark.png" media="(prefers-color-scheme: dark)" data-themed><img src="/img/tuvi-light.png" alt="Lá số Tử Vi 12 cung trong Vân Quẻ" width="1360" height="880" loading="lazy"></picture></div>
+      </div>
+
+      <div class="alt rev reveal">
+        <div>
+          <p class="eyebrow">四柱 · Tử Bình Tứ Trụ</p>
+          <h3>Bát tự theo tiết khí, cân ngũ hành theo nguyệt lệnh</h3>
+          <p>Từ giờ sinh ra bốn trụ can chi, thập thần, tàng can, nạp âm. Ngũ hành được cân theo tháng sinh để gợi ý dụng thần.</p>
+          <ul>
+            <li>Thần sát, hợp – xung – hình – hại, không vong</li>
+            <li>Đại vận và lưu niên với thập thần của năm</li>
+          </ul>
+        </div>
+        <div class="frame"><picture><source srcset="/img/tubinh-dark.png" media="(prefers-color-scheme: dark)" data-themed><img src="/img/tubinh-light.png" alt="Bảng Tử Bình Tứ Trụ trong Vân Quẻ" width="1360" height="880" loading="lazy"></picture></div>
+      </div>
+
+      <div class="alt reveal">
+        <div>
+          <p class="eyebrow">易經 · Kinh Dịch</p>
+          <h3>Gieo quẻ, đọc Thể – Dụng, ghi vào sổ</h3>
+          <p>Gieo ba đồng xu, lập quẻ Mai Hoa theo giờ hoặc theo hai con số bạn nghĩ tới. Vân Quẻ chỉ ra quẻ bản, hỗ, biến và quan hệ sinh khắc giữa Thể và Dụng.</p>
+          <ul>
+            <li>Đủ 64 quẻ, tìm theo tên</li>
+            <li>Sổ quẻ lưu lại mỗi lần gieo để chiêm nghiệm về sau</li>
+          </ul>
+        </div>
+        <div class="frame"><picture><source srcset="/img/kinhdich-dark.png" media="(prefers-color-scheme: dark)" data-themed><img src="/img/kinhdich-light.png" alt="Gieo quẻ Kinh Dịch trong Vân Quẻ" width="1360" height="880" loading="lazy"></picture></div>
+      </div>
+
+      <div class="alt rev reveal">
+        <div>
+          <p class="eyebrow">萬年曆 · Vạn Niên Lịch</p>
+          <h3>Chọn ngày lành mà không phải lật sách</h3>
+          <p>Lịch âm dương từ 1900 đến 2100, can chi, tiết khí, giờ hoàng đạo, 12 Trực kèm việc nên – kỵ và 28 Tú. Thanh trạng thái luôn cho biết giờ can chi lúc này.</p>
+          <ul>
+            <li>Đổi ngày âm ↔ dương, ngày lễ trong năm</li>
+            <li>Tiết khí của tháng tính theo kinh độ mặt trời</li>
+          </ul>
+        </div>
+        <div class="frame"><picture><source srcset="/img/lich-dark.png" media="(prefers-color-scheme: dark)" data-themed><img src="/img/lich-light.png" alt="Vạn Niên Lịch trong Vân Quẻ" width="1360" height="880" loading="lazy"></picture></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modules" id="ly-so">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Bát Quẻ Môn</p>
+        <h2>Tám phân hệ, một phím tắt</h2>
+        <p>Mỗi phân hệ là một trang nội bộ, mở bằng lệnh <code>vq:</code> hoặc từ thanh đánh dấu.</p>
+      </div>
+      <div class="mgrid">
+        <div class="mod reveal"><span class="tri">☰</span><h3>Tử Vi Đẩu Số</h3><code>vq:tuvi</code><p>12 cung, 93 sao + 9 sao lưu niên, đại – tiểu hạn.</p></div>
+        <div class="mod reveal"><span class="tri">☷</span><h3>Tử Bình Tứ Trụ</h3><code>vq:tubinh</code><p>Bát tự, thập thần, dụng thần, đại vận, lưu niên.</p></div>
+        <div class="mod reveal"><span class="tri">☲</span><h3>Bát Trạch Minh Cảnh</h3><code>vq:battrach</code><p>Cung phi, hướng nhà tốt xấu, la bàn, phi tinh năm.</p></div>
+        <div class="mod reveal"><span class="tri">☵</span><h3>Kỳ Môn Độn Giáp</h3><code>vq:kymon</code><p>Chuyển bàn, tam kỳ lục nghi, bát môn, cửu tinh.</p></div>
+        <div class="mod reveal"><span class="tri">☳</span><h3>Hà Đồ Lạc Thư</h3><code>vq:hadolacthu</code><p>Tiên – Hậu Thiên, ma phương, phi tinh cửu cung.</p></div>
+        <div class="mod reveal"><span class="tri">☴</span><h3>Kinh Dịch</h3><code>vq:kinhdich</code><p>Gieo xu, Mai Hoa, Thể – Dụng, sổ quẻ, 64 quẻ.</p></div>
+        <div class="mod reveal"><span class="tri">☶</span><h3>Vạn Niên Lịch</h3><code>vq:lich</code><p>Âm – dương lịch, hoàng đạo, 12 Trực, 28 Tú.</p></div>
+        <div class="mod reveal"><span class="tri">☱</span><h3>Ngũ Hành</h3><code>vq:nguhanh</code><p>Vòng sinh – khắc, tra mệnh, 60 hoa giáp nạp âm.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy" id="bao-mat">
+    <div class="wrap">
+      <div class="seal reveal" aria-hidden="true"><div>Ngoại<br>tuyến</div></div>
+      <div class="reveal">
+        <p class="eyebrow">Riêng tư từ gốc</p>
+        <h2 style="font-size:clamp(32px,4.4vw,50px);margin-top:12px">Ngày giờ sinh của bạn, bạn quyết</h2>
+        <div class="plist">
+          <div><svg><use href="#i-check"/></svg><p><b>Lý số chạy ngoại tuyến</b><span>Toàn bộ thuật toán, phông chữ và trang nội bộ nằm trong ứng dụng. Chưa đăng nhập thì sổ lá số chỉ nằm trên máy này.</span></p></div>
+          <div><svg><use href="#i-check"/></svg><p><b>Tài khoản là tùy chọn</b><span>Đăng nhập tuvi.work chỉ để đồng bộ sổ lá số giữa Vân Quẻ, tuvi.work và app điện thoại. Đăng xuất bất cứ lúc nào.</span></p></div>
+          <div><svg><use href="#i-check"/></svg><p><b>Quyền mặc định là từ chối</b><span>Trang web phải xin phép trước khi dùng vị trí, camera, micro, thông báo hay mở ứng dụng ngoài.</span></p></div>
+          <div><svg><use href="#i-check"/></svg><p><b>Mỗi trang chạy trong hộp cát</b><span>Trang web chạy sandbox, tách biệt với hệ thống, và không thể tự điều hướng vào các trang nội bộ của Vân Quẻ.</span></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="custom" id="tuy-bien" style="padding-top:0">
+    <div class="wrap">
+      <div class="duo reveal">
+        <div class="frame"><img src="/img/caidat-light.png" alt="Trang cài đặt của Vân Quẻ" width="1360" height="880" loading="lazy"></div>
+        <div class="frame"><img src="/img/taixuong-dark.png" alt="Trang tải xuống ở giao diện tối" width="1360" height="880" loading="lazy"></div>
+      </div>
+      <div class="reveal">
+        <p class="eyebrow">Theo ý bạn</p>
+        <h2 style="font-size:clamp(32px,4.4vw,50px);margin-top:12px">Giấy dó ban ngày, mực tàu ban đêm</h2>
+        <div class="item"><b>Sáng, tối hoặc theo hệ thống</b><p>Đổi bất cứ lúc nào với <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>D</kbd>. Mọi trang lý số đổi theo.</p></div>
+        <div class="item"><b>Năm máy tìm kiếm</b><p>Google, DuckDuckGo, Bing, Cốc Cốc hoặc Brave. Thanh địa chỉ gợi ý cả khi bạn gõ không dấu.</p></div>
+        <div class="item"><b>Lịch sử, đánh dấu, tải xuống</b><p>Có trang quản lý riêng, xuất – nhập đánh dấu bằng JSON, tạm dừng và tiếp tục tải tệp.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="story">
+    <div class="wrap reveal">
+      <p class="eyebrow">雲起卦成 · 理數在心</p>
+      <blockquote style="margin-top:20px">«Vân khởi quẻ thành — <span>Lý số tại tâm</span>»</blockquote>
+      <p class="s">Vân Quẻ dành cho người yêu lý số: một góc yên tĩnh để tự xem lá số, gieo một quẻ, chọn một ngày đẹp — không quảng cáo, không thu thập dữ liệu. Lý số để tham khảo và chiêm nghiệm — đức năng thắng số.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#tai-xuong" data-dl="setup"><svg><use href="#i-dl"/></svg>Tải Vân Quẻ miễn phí</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="hoi-dap" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head reveal"><p class="eyebrow">Có câu hỏi?</p><h2>Hỏi đáp</h2></div>
+      <div class="faq reveal">
+        <details><summary>Windows báo “Windows đã bảo vệ PC của bạn” khi mở bộ cài?</summary><p>Bộ cài chưa được ký số nên SmartScreen hiện cảnh báo với ứng dụng mới. Bấm <b>Thông tin thêm</b> rồi <b>Vẫn chạy</b> để tiếp tục. Chỉ tải Vân Quẻ từ trang này hoặc trang phát hành chính thức trên GitHub.</p></details>
+        <details><summary>Có bản cho macOS hay Linux không?</summary><p>Hiện tại Vân Quẻ phát hành cho Windows 10 và 11 (64-bit). Bản macOS và Linux đang được chuẩn bị.</p></details>
+        <details><summary>Bản cài đặt và bản chạy ngay khác nhau thế nào?</summary><p>Bản cài đặt tạo lối tắt trên màn hình và trong menu Start, cho chọn thư mục cài. Bản chạy ngay là một tệp .exe duy nhất, bấm là chạy, hợp để mang theo USB.</p></details>
+        <details><summary>Có cần tài khoản không?</summary><p>Không. Vân Quẻ dùng được đầy đủ khi chưa đăng nhập. Nếu muốn, bạn đăng nhập bằng Google qua tuvi.work (chưa có tài khoản sẽ được tạo mới, miễn phí) để sổ lá số hiện trên mọi máy tính, trên tuvi.work và trong app tuvi.work.</p></details>
+        <details><summary>Tôi đang dùng bản 1.x, dữ liệu có mất không?</summary><p>Không. Lần đầu mở bản 2.0, đánh dấu, phiên làm việc và giao diện của bản cũ được chuyển sang tự động. Dữ liệu cũ vẫn được giữ nguyên.</p></details>
+        <details><summary>Kết quả lý số có chính xác không?</summary><p>Âm lịch dùng thuật toán Hồ Ngọc Đức, tiết khí theo kinh độ mặt trời, công thức an sao đối chiếu với nhiều nguồn và được kiểm thử tự động. Ở những điểm các trường phái còn tranh cãi, Vân Quẻ ghi rõ bảng đang dùng. Kết quả chỉ mang tính tham khảo.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="dl" id="tai-xuong">
+    <div class="wrap">
+      <div class="sec-head reveal"><p class="eyebrow">Tải xuống · Phiên bản <span data-ver>2.0.0</span></p><h2>Chọn bản phù hợp với bạn</h2></div>
+      <div class="dgrid">
+        <div class="dcol reveal">
+          <h3><svg><use href="#i-win"/></svg>Windows — Bộ cài đặt</h3>
+          <p>Khuyên dùng. Cài vào máy, tạo lối tắt, cho chọn thư mục cài đặt.</p>
+          <span class="size" data-size="setup"></span>
+          <a class="btn btn-primary" data-dl="setup" href="#"><svg><use href="#i-dl"/></svg>Tải bộ cài (.exe)</a>
+        </div>
+        <div class="dcol reveal">
+          <h3><svg><use href="#i-win"/></svg>Windows — Chạy ngay</h3>
+          <p>Một tệp duy nhất, không cần cài. Hợp để thử nhanh hoặc mang theo USB.</p>
+          <span class="size" data-size="portable"></span>
+          <a class="btn btn-ghost" data-dl="portable" href="#"><svg><use href="#i-dl"/></svg>Tải bản chạy ngay</a>
+        </div>
+        <div class="dcol soon reveal">
+          <h3><svg><use href="#i-apple"/></svg>macOS · <svg><use href="#i-linux"/></svg>Linux</h3>
+          <p>Bản DMG cho macOS và AppImage cho Linux đang được chuẩn bị.</p>
+          <span class="size">Sắp ra mắt</span>
+          <a class="btn btn-ghost" href="https://github.com/datnpq/vanque-browser/releases" rel="noopener">Theo dõi trên GitHub</a>
+        </div>
+      </div>
+      <p class="req">Yêu cầu: Windows 10 hoặc 11, 64-bit · khoảng 300 MB dung lượng trống · <a href="https://github.com/datnpq/vanque-browser/releases" rel="noopener">Tất cả bản phát hành</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <a class="brand" href="#top"><img src="/img/icon.png" alt="" width="34" height="34">Vân <b>Quẻ</b></a>
+        <p class="tag">Trình duyệt huyền học Phương Đông. Giấy dó, mực tàu, son đỏ, nhũ vàng.</p>
+      </div>
+      <div><h4>Sản phẩm</h4><ul><li><a href="#tinh-nang">Tính năng</a></li><li><a href="#ly-so">Phân hệ lý số</a></li><li><a href="#tai-xuong">Tải xuống</a></li></ul></div>
+      <div><h4>Hỗ trợ</h4><ul><li><a href="#hoi-dap">Hỏi đáp</a></li><li><a href="https://github.com/datnpq/vanque-browser/issues" rel="noopener">Báo lỗi</a></li><li><a href="https://github.com/datnpq/vanque-browser/releases" rel="noopener">Ghi chú phát hành</a></li></ul></div>
+      <div><h4>Riêng tư</h4><ul><li><a href="#bao-mat">Bảo mật</a></li><li><a href="/quyen-rieng-tu">Chính sách quyền riêng tư</a></li><li><a href="/fonts/LICENSE-OFL.txt">Giấy phép phông chữ</a></li></ul></div>
+    </div>
+    <div class="legal"><span>MIT © Vân Quẻ Môn · Phudu &amp; Be Vietnam Pro theo SIL OFL 1.1</span><span>Lý số để tham khảo, chiêm nghiệm — Đức năng thắng số.</span></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const REL = 'https://github.com/datnpq/vanque-browser/releases/latest/download/';
+  const FILES = { setup: 'VanQue-Setup-x64.exe', portable: 'VanQue-Portable-x64.exe' };
+  const SIZES = { setup: '107 MB', portable: '107 MB' };
+  document.querySelectorAll('[data-dl]').forEach((a) => { a.href = REL + FILES[a.dataset.dl]; });
+  document.querySelectorAll('[data-size]').forEach((s) => { const v = SIZES[s.dataset.size]; s.textContent = v ? 'Dung lượng ' + v : ''; });
+
+  // Nhận diện hệ điều hành cho nút chính
+  const ua = navigator.userAgent, note = document.getElementById('osNote');
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(ua), isMac = /Macintosh|Mac OS X/i.test(ua) && !isMobile, isLinux = /Linux/i.test(ua) && !/Android/i.test(ua);
+  if (isMobile || isMac || isLinux) {
+    note.hidden = false;
+    note.textContent = isMobile ? 'Vân Quẻ là trình duyệt cho máy tính. Hãy mở trang này trên máy Windows để tải về.'
+      : `Vân Quẻ hiện có cho Windows 10 / 11. Bản cho ${isMac ? 'macOS' : 'Linux'} đang được chuẩn bị.`;
+  }
+
+  // Giao diện sáng / tối: đổi cả ảnh chụp màn hình
+  const root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');
+  let saved = null; try { saved = localStorage.getItem('vq-site-theme'); } catch {}
+  const apply = (t) => {
+    if (t) root.dataset.theme = t; else delete root.dataset.theme;
+    const dark = t ? t === 'dark' : mq.matches;
+    document.querySelectorAll('source[data-themed]').forEach((s) => { s.media = t ? (dark ? 'all' : 'not all') : '(prefers-color-scheme: dark)'; });
+  };
+  apply(saved);
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const cur = root.dataset.theme || (mq.matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('vq-site-theme', next); } catch {}
+  });
+
+  // Hiện dần khi cuộn tới
+  const io = 'IntersectionObserver' in window && new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach((el) => (io ? io.observe(el) : el.classList.add('in')));
+})();
+</script>
+</body>
+</html>

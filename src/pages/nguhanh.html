@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Ngũ Hành · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    svg.wx { width: 100%; max-width: 460px; display: block; margin: 0 auto; }
+    svg.wx text { font-family: var(--font-display); }
+    .hoa60 { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+    @media (max-width: 860px) { .hoa60 { grid-template-columns: repeat(3, 1fr); } }
+    .hoa60 div { border: 1px solid var(--vq-line); border-radius: 8px; padding: 6px 8px; font-size: 12.5px; background: var(--vq-bg); }
+    .hoa60 div b { font-family: var(--font-display); font-size: 15px; }
+    .hoa60 div.me { border: 2px solid var(--vq-son); }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">五行</span>
+    <div class="kicker">Sinh · Khắc · Nạp âm lục thập hoa giáp</div>
+    <h1>Ngũ <em>Hành</em></h1>
+    <p class="motto">«Mộc sinh Hỏa, Hỏa sinh Thổ, Thổ sinh Kim, Kim sinh Thủy, Thủy sinh Mộc»</p>
+  </header>
+  <main class="wrap">
+    <section class="grid g2">
+      <div class="card card--corner"><h3>Vòng tương sinh – tương khắc</h3><svg class="wx mt" id="wx" viewBox="-220 -220 440 440"></svg>
+        <p class="small muted center">Vòng ngoài (vàng): tương sinh · Sao năm cánh (đỏ): tương khắc. Bấm một hành để xem.</p><p id="wxi" class="center"></p></div>
+      <div class="card"><h3>Tra mệnh theo năm sinh</h3>
+        <div class="form mt" style="display:grid;grid-template-columns:1fr auto"><input class="field" id="yr" type="number" min="1900" max="2100" value="1990"><button class="btn btn--sm" id="go">Tra</button></div>
+        <div id="res" class="mt"></div>
+      </div>
+    </section>
+    <section class="card mt2"><h3>Lục thập hoa giáp & Nạp âm</h3><div class="hoa60 mt" id="h60"></div></section>
+  </main>
+  <script>
+    const { $, h } = UI;
+    const COL = ['var(--h-moc)', 'var(--h-hoa)', 'var(--h-tho)', 'var(--h-kim)', 'var(--h-thuy)'];
+    const DESC = ['Phương Đông · mùa Xuân · màu xanh · tạng Can', 'Phương Nam · mùa Hạ · màu đỏ · tạng Tâm', 'Trung ương · tứ quý · màu vàng · tạng Tỳ',
+      'Phương Tây · mùa Thu · màu trắng · tạng Phế', 'Phương Bắc · mùa Đông · màu đen · tạng Thận'];
+    let s = '', P = VQ.HANH.map((_, i) => { const a = (i * 72 - 90) * Math.PI / 180; return [150 * Math.cos(a), 150 * Math.sin(a)]; });
+    P.forEach(([x, y], i) => { const [x2, y2] = P[(i + 1) % 5]; s += `<path d="M${x},${y} Q${(x + x2) * 0.75},${(y + y2) * 0.75} ${x2},${y2}" stroke="var(--vq-gold)" stroke-width="3" fill="none" marker-end="url(#ag)"/>`; });
+    P.forEach(([x, y], i) => { const [x2, y2] = P[(i + 2) % 5]; s += `<line x1="${x * .78}" y1="${y * .78}" x2="${x2 * .78}" y2="${y2 * .78}" stroke="var(--vq-son)" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ar)"/>`; });
+    P.forEach(([x, y], i) => { s += `<g class="node" data-i="${i}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="40" fill="var(--vq-card)" stroke="${COL[i]}" stroke-width="4"/><text x="${x}" y="${y + 8}" text-anchor="middle" font-size="22" font-weight="800" fill="${COL[i]}">${VQ.HANH[i]}</text></g>`; });
+    $('#wx').innerHTML = `<defs><marker id="ag" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="var(--vq-gold)"/></marker><marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="var(--vq-son)"/></marker></defs>` + s;
+    document.querySelectorAll('.node').forEach((n) => n.addEventListener('click', () => {
+      const i = +n.dataset.i, H = VQ.HANH;
+      $('#wxi').innerHTML = `<b style="color:${COL[i]}">${H[i]}</b> — ${DESC[i]}<br>Sinh <b>${H[(i + 1) % 5]}</b> · được <b>${H[(i + 4) % 5]}</b> sinh · khắc <b>${H[(i + 2) % 5]}</b> · bị <b>${H[(i + 3) % 5]}</b> khắc`;
+    }));
+    function tra() {
+      const y = +$('#yr').value, c = VQ.mod(y - 4, 10), z = VQ.mod(y - 4, 12), na = VQ.napAm(c, z), hi = VQ.napAmHanh(c, z), H = VQ.HANH;
+      $('#res').innerHTML = '';
+      $('#res').append(h('div', { style: 'display:flex;gap:16px;align-items:center' }, h('span', { class: 'seal seal--fill', style: 'width:70px;height:70px;font-size:16px' }, H[hi]),
+        h('div', {}, h('div', { style: 'font-family:var(--font-display);font-size:26px;font-weight:800' }, `${VQ.canChi(c, z)} · ${na}`), h('div', { class: 'muted' }, `Tuổi ${VQ.CON_GIAP[z]} · ${c % 2 ? 'Âm' : 'Dương'} ${H[hi]}`))),
+        h('p', { class: 'mt' }, 'Hợp hành: ', h('b', { style: `color:${COL[(hi + 4) % 5]}` }, H[(hi + 4) % 5]), ' (tương sinh), ', h('b', { style: `color:${COL[hi]}` }, H[hi]), ' (tương hợp). Kỵ: ', h('b', { style: `color:${COL[(hi + 3) % 5]}` }, H[(hi + 3) % 5]), '.'),
+        h('p', { class: 'small muted' }, `Tam hợp: ${[0, 4, 8].map((o) => VQ.CHI[(z + o) % 12]).join(' – ')} · Lục hợp: ${VQ.CHI[VQ.mod(1 - z, 12)]} · Xung: ${VQ.CHI[(z + 6) % 12]}`));
+      document.querySelectorAll('.hoa60 div').forEach((d) => d.classList.toggle('me', +d.dataset.n === VQ.sexagenary(c, z)));
+    }
+    for (let n = 0; n < 60; n++) {
+      const c = n % 10, z = n % 12, na = VQ.napAm(c, z), hi = VQ.napAmHanh(c, z);
+      $('#h60').append(h('div', { 'data-n': n }, h('b', {}, VQ.canChi(c, z)), h('div', { style: `color:${COL[hi]}` }, na)));
+    }
+    const p = UI.profile.get(); if (p) $('#yr').value = VQ.solar2lunar(p.day, p.month, p.year).year;
+    $('#go').onclick = tra; tra();
+  </script>
+</body>
+</html>

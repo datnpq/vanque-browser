@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Vạn Niên Lịch · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+  <style>
+    .cal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .cal-head h2 { font-size: 26px; }
+    .cal-nav { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .cal-nav select, .cal-nav input { width: auto; padding: 6px 8px; }
+    .cal-nav input { width: 90px; }
+    .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; outline: none; }
+    .cal .wd { text-align: center; font-family: var(--font-display); font-size: 13px; color: var(--vq-ink-soft); padding: 4px; }
+    .cal .d { border: 1px solid var(--vq-line); border-radius: 10px; padding: 6px 8px; min-height: 92px; background: var(--vq-bg); cursor: pointer; position: relative; transition: border-color .15s; overflow: hidden; }
+    .cal .d:hover { border-color: var(--vq-gold); }
+    .cal .d.out { opacity: .35; }
+    .cal .d.today { border: 2px solid var(--vq-son); }
+    .cal .d.sel { background: color-mix(in srgb, var(--vq-gold) 14%, var(--vq-bg)); box-shadow: inset 0 0 0 1px var(--vq-gold); }
+    .cal .d .s { font-family: var(--font-display); font-size: 22px; font-weight: 700; line-height: 1.1; }
+    .cal .d .l { position: absolute; right: 8px; top: 8px; font-size: 12px; color: var(--vq-ink-soft); }
+    .cal .d .l.m1 { color: var(--vq-son); font-weight: 700; }
+    .cal .d .cc { font-size: 11px; color: var(--vq-ink-soft); }
+    .cal .d .tr { font-size: 10.5px; color: var(--vq-cham); }
+    .cal .d .hol { font-size: 10px; color: var(--vq-son); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+    .cal .d .hd { position: absolute; right: 8px; bottom: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--vq-luc); }
+    .cal .d.sun .s { color: var(--vq-son); }
+    .detail .bigday { font-family: var(--font-display); font-size: 84px; font-weight: 800; line-height: 1; color: var(--vq-son); text-align: center; }
+    .kv { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--vq-line); padding: 6px 0; font-size: 14px; gap: 8px; }
+    .kv span:first-child { color: var(--vq-ink-soft); flex: none; }
+    .kv b { text-align: right; }
+    .sub { font-family: var(--font-display); font-weight: 700; margin-top: 14px; }
+    .tlist { font-size: 13.5px; margin: 6px 0 0; padding: 0; list-style: none; }
+    .tlist li { padding: 3px 0; border-bottom: 1px dotted var(--vq-line); }
+    .conv { display: grid; gap: 10px; }
+    .conv .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .conv .out { font-size: 14px; min-height: 22px; }
+    .conv .err { color: var(--vq-son); }
+  </style>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">萬年</span>
+    <div class="kicker">Âm dương lịch · Tiết khí · Hoàng đạo · Thập nhị trực</div>
+    <h1>Vạn Niên <em>Lịch</em></h1>
+    <p class="motto">«Xem ngày lành, chọn giờ tốt — thuận thiên thời»</p>
+  </header>
+  <main class="wrap split" style="grid-template-columns:minmax(0,1fr) 340px">
+    <section>
+      <div class="card">
+        <div class="cal-head">
+          <button class="btn btn--sm btn--ghost" id="prev" title="Tháng trước (PageUp)">‹</button>
+          <h2 id="title"></h2>
+          <div class="cal-nav">
+            <select class="field" id="jm" aria-label="Tháng"></select>
+            <input class="field" id="jy" type="number" min="1900" max="2100" aria-label="Năm">
+            <button class="btn btn--sm btn--ghost" id="today">Hôm nay</button>
+            <button class="btn btn--sm btn--ghost" id="next" title="Tháng sau (PageDown)">›</button>
+          </div>
+        </div>
+        <div class="cal mt" id="cal" tabindex="0" aria-label="Lịch tháng — dùng phím mũi tên để chọn ngày"></div>
+        <p class="small muted mt">● chấm xanh: ngày Hoàng đạo · số góc phải: ngày âm lịch (đỏ = mùng 1) · chữ xanh: trực · phím ← → ↑ ↓ chọn ngày, PageUp/PageDown đổi tháng</p>
+      </div>
+      <div class="grid g2 mt">
+        <div class="card"><h3>Tiết khí trong tháng</h3><ul class="tlist" id="tiet"></ul></div>
+        <div class="card"><h3>Ngày lễ trong tháng</h3><ul class="tlist" id="hols"></ul></div>
+      </div>
+      <div class="card mt conv">
+        <h3>Đổi ngày</h3>
+        <div class="grid g2">
+          <div class="conv"><label class="lb">Dương lịch → Âm lịch</label>
+            <div class="row3"><input class="field" id="sd" type="number" min="1" max="31" placeholder="Ngày"><input class="field" id="sm" type="number" min="1" max="12" placeholder="Tháng"><input class="field" id="sy" type="number" min="1900" max="2100" placeholder="Năm"></div>
+            <div class="out" id="sOut"></div></div>
+          <div class="conv"><label class="lb">Âm lịch → Dương lịch</label>
+            <div class="row3"><input class="field" id="ld" type="number" min="1" max="30" placeholder="Ngày"><input class="field" id="lm" type="number" min="1" max="12" placeholder="Tháng"><input class="field" id="ly" type="number" min="1900" max="2100" placeholder="Năm"></div>
+            <label class="small muted"><input type="checkbox" id="lleap"> Tháng nhuận</label>
+            <div class="out" id="lOut"></div></div>
+        </div>
+      </div>
+    </section>
+    <aside class="card card--corner detail" id="detail"></aside>
+  </main>
+  <script>
+    const { $, h } = UI;
+    const SOLAR_HOL = { '1/1': 'Tết Dương lịch', '14/2': 'Lễ Tình nhân', '3/2': 'Thành lập Đảng CSVN', '8/3': 'Quốc tế Phụ nữ', '30/4': 'Giải phóng miền Nam', '1/5': 'Quốc tế Lao động',
+      '1/6': 'Quốc tế Thiếu nhi', '27/7': 'Thương binh Liệt sĩ', '2/9': 'Quốc khánh', '20/10': 'Phụ nữ Việt Nam', '20/11': 'Nhà giáo Việt Nam', '22/12': 'Quân đội Nhân dân', '24/12': 'Đêm Giáng sinh' };
+    const LUNAR_HOL = { '1/1': 'Tết Nguyên Đán', '2/1': 'Mùng 2 Tết', '3/1': 'Mùng 3 Tết', '15/1': 'Rằm tháng Giêng', '10/3': 'Giỗ Tổ Hùng Vương', '15/4': 'Phật Đản',
+      '5/5': 'Tết Đoan Ngọ', '15/7': 'Vu Lan', '15/8': 'Tết Trung Thu', '23/12': 'Ông Công Ông Táo' };
+    function holidays(d, m, info) {
+      const out = [];
+      if (SOLAR_HOL[`${d}/${m}`]) out.push(SOLAR_HOL[`${d}/${m}`]);
+      if (!info.lunar.leap && LUNAR_HOL[`${info.lunar.day}/${info.lunar.month}`]) out.push(LUNAR_HOL[`${info.lunar.day}/${info.lunar.month}`]);
+      return out;
+    }
+    const today = new Date(); let Y = today.getFullYear(), M = today.getMonth() + 1, sel = [today.getDate(), M, Y];
+    UI.fillSelect($('#jm'), Array.from({ length: 12 }, (_, i) => [i + 1, 'Tháng ' + (i + 1)]), M);
+
+    function render() {
+      $('#title').textContent = `Tháng ${M} / ${Y}`;
+      $('#jm').value = M; $('#jy').value = Y;
+      const C = $('#cal'); C.innerHTML = '';
+      ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].forEach((w) => C.append(h('div', { class: 'wd' }, w)));
+      const first = new Date(Y, M - 1, 1), offset = (first.getDay() + 6) % 7, days = new Date(Y, M, 0).getDate();
+      const cells = Math.ceil((offset + days) / 7) * 7; // đủ tuần: 5 hoặc 6 hàng
+      for (let i = 0; i < cells; i++) {
+        const dt = new Date(Y, M - 1, 1 - offset + i), d = dt.getDate(), m = dt.getMonth() + 1, y = dt.getFullYear();
+        const info = VQ.dayInfo(d, m, y), hol = holidays(d, m, info);
+        const isToday = d === today.getDate() && m === today.getMonth() + 1 && y === today.getFullYear();
+        const isSel = d === sel[0] && m === sel[1] && y === sel[2];
+        C.append(h('div', { class: `d${m !== M ? ' out' : ''}${isToday ? ' today' : ''}${isSel ? ' sel' : ''}${dt.getDay() === 0 ? ' sun' : ''}`, title: hol.join(' · ') || null,
+          onclick: () => { sel = [d, m, y]; if (m !== M) { M = m; Y = y; } render(); } },
+          h('div', { class: 's' }, d), h('div', { class: 'l' + (info.lunar.day === 1 ? ' m1' : '') }, info.lunar.day === 1 ? `1/${info.lunar.month}${info.lunar.leap ? 'N' : ''}` : info.lunar.day),
+          h('div', { class: 'cc' }, info.day.text), h('div', { class: 'tr' }, 'Trực ' + info.truc.name),
+          hol.length ? h('div', { class: 'hol' }, hol[0]) : null,
+          info.ngay.hoangDao ? h('span', { class: 'hd', title: 'Hoàng đạo' }) : null));
+      }
+      monthLists(days);
+      detail();
+    }
+    function monthLists(days) {
+      const T = $('#tiet'); T.innerHTML = '';
+      // Ngày giao tiết = ngày mà cuối ngày đã sang tiết mới (so với cuối ngày hôm trước; ngày 1 so với cuối tháng trước)
+      const pd = new Date(Y, M - 1, 0);
+      let prev = VQ.tietKhiOf(pd.getDate(), pd.getMonth() + 1, pd.getFullYear(), 24).index;
+      for (let d = 1; d <= days; d++) {
+        const idx = VQ.tietKhiOf(d, M, Y, 24).index;
+        if (idx !== prev) T.append(h('li', {}, h('b', {}, `${d}/${M}`), ' — ' + VQ.TIET_KHI[idx]));
+        prev = idx;
+      }
+      if (!T.children.length) T.append(h('li', { class: 'muted' }, '—'));
+      const H = $('#hols'); H.innerHTML = '';
+      for (let d = 1; d <= days; d++) {
+        const info = VQ.dayInfo(d, M, Y);
+        holidays(d, M, info).forEach((n) => H.append(h('li', {}, h('b', {}, `${d}/${M}`), ` — ${n}`, h('span', { class: 'muted small' }, ` (${info.lunar.day}/${info.lunar.month}${info.lunar.leap ? 'N' : ''} ÂL)`))));
+      }
+      if (!H.children.length) H.append(h('li', { class: 'muted' }, 'Không có ngày lễ lớn.'));
+    }
+    function detail() {
+      const [d, m, y] = sel, info = VQ.dayInfo(d, m, y), D = $('#detail'); D.innerHTML = '';
+      const hol = holidays(d, m, info);
+      D.append(...[h('div', { class: 'center small muted mono', style: 'letter-spacing:.2em' }, `${info.weekday.toUpperCase()} · ${d}/${m}/${y}`),
+        h('div', { class: 'bigday mt' }, info.lunar.day),
+        h('div', { class: 'center', style: 'font-family:var(--font-display);font-size:18px;font-weight:700' }, `Tháng ${info.lunar.month}${info.lunar.leap ? ' nhuận' : ''} · năm ${info.year.text}`),
+        hol.length ? h('div', { class: 'center mt', style: 'color:var(--vq-son);font-weight:600' }, hol.join(' · ')) : null,
+        h('hr', { class: 'sep' }),
+        ...[['Ngày', `${info.day.text} · ${VQ.napAm(info.day.can, info.day.chi)}`], ['Tháng', info.month.text], ['Năm', `${info.year.text} (${VQ.CON_GIAP[info.year.chi]})`],
+          ['Tiết khí', info.tietKhi.name], ['Trực thần', `${info.ngay.than} — ${info.ngay.hoangDao ? 'Hoàng đạo ✦' : 'Hắc đạo'}`],
+          ['Thập nhị trực', 'Trực ' + info.truc.name], ['Nhị thập bát tú', `${info.tu.full} · ${info.tu.phuong}`],
+          ['Tuổi xung', ['Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi', 'Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ'][info.day.chi]]].map(([a, b]) => h('div', { class: 'kv' }, h('span', {}, a), h('b', {}, b))),
+        h('p', { class: 'small', style: 'margin:10px 0 0' }, h('b', {}, `Trực ${info.truc.name}`), ' — Nên: ', info.truc.nen, ' · Kỵ: ', info.truc.ky, '.'),
+        h('div', { class: 'sub' }, 'Giờ hoàng đạo'),
+        h('div', { style: 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px' }, info.gioHoangDao.map((z) => h('span', { class: 'chip chip--gold' }, `${VQ.CHI[z]} ${VQ.GIO_RANGE[z]}`)))].filter(Boolean));
+    }
+    function moveSel(days) {
+      const dt = new Date(sel[2], sel[1] - 1, sel[0] + days);
+      if (dt.getFullYear() < 1900 || dt.getFullYear() > 2100) return;
+      sel = [dt.getDate(), dt.getMonth() + 1, dt.getFullYear()]; M = sel[1]; Y = sel[2]; render();
+    }
+    function moveMonth(n) {
+      let m = M + n, y = Y; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; }
+      if (y < 1900 || y > 2100) return;
+      M = m; Y = y; sel = [Math.min(sel[0], new Date(Y, M, 0).getDate()), M, Y]; render();
+    }
+    $('#prev').onclick = () => moveMonth(-1);
+    $('#next').onclick = () => moveMonth(1);
+    $('#today').onclick = () => { Y = today.getFullYear(); M = today.getMonth() + 1; sel = [today.getDate(), M, Y]; render(); };
+    $('#jm').onchange = () => { M = +$('#jm').value; sel = [Math.min(sel[0], new Date(Y, M, 0).getDate()), M, Y]; render(); };
+    $('#jy').onchange = () => { const y = +$('#jy').value; if (y >= 1900 && y <= 2100) { Y = y; sel = [Math.min(sel[0], new Date(Y, M, 0).getDate()), M, Y]; } render(); };
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('input, select, textarea') || e.ctrlKey || e.altKey || e.metaKey) return;
+      const k = { ArrowLeft: () => moveSel(-1), ArrowRight: () => moveSel(1), ArrowUp: () => moveSel(-7), ArrowDown: () => moveSel(7), PageUp: () => moveMonth(-1), PageDown: () => moveMonth(1) }[e.key];
+      if (k) { e.preventDefault(); k(); }
+    });
+
+    // Đổi ngày
+    function convS() {
+      const d = +$('#sd').value, m = +$('#sm').value, y = +$('#sy').value, out = $('#sOut'); out.innerHTML = ''; out.className = 'out';
+      if (!d || !m || !y) return;
+      const dt = new Date(y, m - 1, d);
+      if (y < 1900 || y > 2100 || dt.getDate() !== d || dt.getMonth() !== m - 1) { out.className = 'out err'; out.textContent = 'Ngày dương lịch không hợp lệ (1900–2100).'; return; }
+      const info = VQ.dayInfo(d, m, y);
+      out.append(h('b', {}, `${info.lunar.day}/${info.lunar.month}${info.lunar.leap ? ' (nhuận)' : ''}/${info.lunar.year}`), ` — ngày ${info.day.text}, tháng ${info.month.text}, năm ${info.year.text} `,
+        h('a', { href: '#', onclick: (e) => { e.preventDefault(); sel = [d, m, y]; M = m; Y = y; render(); } }, '→ xem'));
+    }
+    function convL() {
+      const d = +$('#ld').value, m = +$('#lm').value, y = +$('#ly').value, out = $('#lOut'); out.innerHTML = ''; out.className = 'out';
+      if (!d || !m || !y) return;
+      const r = y >= 1900 && y <= 2100 && d <= 30 && m <= 12 ? VQ.lunar2solar(d, m, y, $('#lleap').checked ? 1 : 0) : null;
+      const back = r && VQ.solar2lunar(r.day, r.month, r.year);
+      if (!r || back.day !== d || back.month !== m) { out.className = 'out err'; out.textContent = $('#lleap').checked ? 'Năm này không có tháng nhuận đó, hoặc ngày không tồn tại.' : 'Ngày âm lịch không tồn tại (tháng thiếu chỉ có 29 ngày).'; return; }
+      const info = VQ.dayInfo(r.day, r.month, r.year);
+      out.append(h('b', {}, `${r.day}/${r.month}/${r.year}`), ` — ${info.weekday}, ngày ${info.day.text} `,
+        h('a', { href: '#', onclick: (e) => { e.preventDefault(); sel = [r.day, r.month, r.year]; M = r.month; Y = r.year; render(); } }, '→ xem'));
+    }
+    ['sd', 'sm', 'sy'].forEach((id) => $('#' + id).addEventListener('input', convS));
+    ['ld', 'lm', 'ly', 'lleap'].forEach((id) => $('#' + id).addEventListener('input', convL));
+    $('#sd').value = today.getDate(); $('#sm').value = today.getMonth() + 1; $('#sy').value = today.getFullYear(); convS();
+    render();
+  </script>
+</body>
+</html>

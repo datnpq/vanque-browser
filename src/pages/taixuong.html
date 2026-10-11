@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Tải xuống · Vân Quẻ</title>
+  <link rel="stylesheet" href="vq.css">
+  <script src="lib/lyso.js"></script>
+  <script src="lib/ui.js"></script>
+</head>
+<body>
+  <header class="page-head wrap">
+    <span class="han">收藏</span>
+    <div class="kicker">Thu nạp về kho</div>
+    <h1>Tải <em>xuống</em></h1>
+    <p class="motto">«Tích tiểu thành đại — góp gió thành bão»</p>
+  </header>
+  <main class="wrap mgr">
+    <section class="card card--corner">
+      <div class="mgr-bar">
+        <input class="field" id="q" type="search" placeholder="Tìm tệp đã tải…">
+        <button class="btn btn--sm btn--ghost" id="folder">📂 Mở thư mục</button>
+        <button class="btn btn--sm btn--danger" id="clear">Dọn danh sách</button>
+      </div>
+      <div class="list mt" id="list"></div>
+    </section>
+  </main>
+  <script>
+    const { $, h, api } = UI;
+    let items = [];
+    const STATE = { completed: 'Hoàn tất', cancelled: 'Đã hủy', interrupted: 'Bị gián đoạn', progressing: 'Đang tải' };
+    async function load() { items = await api('downloads'); render(); }
+    const act = (a, id) => api('downloads', null, { action: a, id }).then(load).catch((e) => UI.toast(e.message));
+    function render() {
+      const L = $('#list'), q = $('#q').value.toLowerCase(); L.innerHTML = '';
+      const list = items.filter((d) => !q || (d.filename + ' ' + d.url).toLowerCase().includes(q));
+      if (!list.length) { L.append(h('div', { class: 'empty' }, h('span', { class: 'k' }, '☵'), q ? 'Không có tệp khớp.' : 'Chưa tải tệp nào.')); return; }
+      let day = '';
+      list.forEach((d) => {
+        const dd = UI.fmtDay(d.start);
+        if (dd !== day) { day = dd; L.append(h('div', { class: 'grp' }, dd)); }
+        const live = d.state === 'progressing', ok = d.state === 'completed' && d.exists;
+        const pct = d.total ? Math.round((d.received / d.total) * 100) : null;
+        const sub = live ? `${UI.fmtBytes(d.received)}${d.total ? ' / ' + UI.fmtBytes(d.total) + ` (${pct}%)` : ''}${d.paused ? ' · tạm dừng' : ''}`
+          : d.state === 'completed' ? (d.exists ? UI.fmtBytes(d.received) : 'Tệp đã bị xóa hoặc di chuyển') : STATE[d.state] || d.state;
+        L.append(h('div', { class: 'item' },
+          h('span', { class: 'time' }, UI.fmtTime(d.start)),
+          h('span', { class: 'site-ico', style: `--hue:${ok ? 150 : live ? 40 : 8}` }, ok ? '🗎' : live ? '⤓' : '⚠'),
+          h('div', { style: 'min-width:0' },
+            h('div', { class: 't', style: ok ? 'cursor:pointer' : d.state === 'completed' ? 'text-decoration:line-through;opacity:.6' : '', title: d.path || d.filename, onclick: ok ? () => act('open', d.id) : null }, d.filename),
+            h('div', { class: 'u' }, `${sub} · ${UI.hostOf(d.url)}`),
+            live ? h('div', { class: 'prog' }, h('i', { style: `width:${pct ?? 15}%` })) : null),
+          h('div', { class: 'acts', style: 'opacity:1' },
+            live ? h('button', { class: 'ibtn', title: d.paused ? 'Tiếp tục' : 'Tạm dừng', onclick: () => act(d.paused ? 'resume' : 'pause', d.id) }, d.paused ? '▶' : '⏸') : null,
+            live ? h('button', { class: 'ibtn', title: 'Hủy', onclick: () => act('cancel', d.id) }, '✕') : null,
+            ok ? h('button', { class: 'ibtn', title: 'Hiện trong thư mục', onclick: () => act('show', d.id) }, '📂') : null,
+            !live && d.state !== 'completed' ? h('button', { class: 'ibtn', title: 'Tải lại', onclick: () => { location.href = d.url; } }, '↻') : null,
+            !live ? h('button', { class: 'ibtn', title: 'Xóa khỏi danh sách (không xóa tệp)', onclick: () => act('remove', d.id) }, '🗑') : null)));
+      });
+    }
+    $('#q').addEventListener('input', render);
+    $('#folder').onclick = () => act('folder');
+    $('#clear').onclick = () => act('clear');
+    UI.onStore((what) => { if (what === 'downloads') load(); });
+    setInterval(() => { if (items.some((d) => d.state === 'progressing')) load(); }, 1000);
+    load();
+  </script>
+</body>
+</html>

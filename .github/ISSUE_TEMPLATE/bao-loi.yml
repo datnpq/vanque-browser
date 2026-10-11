@@ -1,0 +1,35 @@
+name: Báo lỗi
+description: Ứng dụng chạy sai, sụp đổ, hoặc giao diện hiển thị lỗi
+labels: [loi]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Phiên bản Vân Quẻ
+      description: Xem ở Cài đặt → Giới thiệu
+      placeholder: "2.0.1"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Hệ điều hành
+      placeholder: "Windows 11 23H2"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Các bước tái hiện
+      placeholder: "1. Mở Tử Vi\n2. Nhập …\n3. Bấm Lập lá số"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Mong đợi và thực tế
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "**Đừng dán ngày giờ sinh thật của người khác.** Lỗ hổng bảo mật xin báo riêng theo [SECURITY.md](../blob/main/SECURITY.md)."
