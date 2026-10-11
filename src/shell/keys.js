@@ -14,6 +14,8 @@
       if (m) return m;
       if (/^[1-9]$/.test(k)) return 'tab-' + k;
     }
+    // Thói quen macOS: Cmd+[ / Cmd+] lùi, tiến
+    if (input.meta && !input.control && !sh && !alt && (k === '[' || k === ']')) return k === '[' ? 'back' : 'forward';
     if (alt && !mod) {
       if (k === 'arrowleft') return 'back';
       if (k === 'arrowright') return 'forward';

@@ -73,6 +73,10 @@ button { font: inherit; color: inherit; }
 #newtab { align-self: center; margin-left: 2px; }
 .drag { flex: 1; align-self: stretch; min-width: 40px; }
 .winctl { display: flex; align-self: stretch; }
+/* macOS: nút đèn giao thông gốc nằm bên trái */
+body.mac .winctl { display: none; }
+body.mac #titlebar { padding-left: 80px; }
+body.mac.fullscreen #titlebar { padding-left: 8px; }
 .winctl button { width: 46px; border: 0; background: transparent; cursor: pointer; font-size: 13px; color: var(--ink-soft); }
 .winctl button:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); }
 .winctl button.x:hover { background: #c42b1c; color: #fff; }

@@ -36,7 +36,10 @@ jobs:
       - run: node test/e2e.js ${{ matrix.theme }}
       - if: always()
         uses: actions/upload-artifact@v4
-        with: { name: e2e-${{ matrix.theme }}, path: test/shots/, if-no-files-found: ignore }
+        with:
+          name: e2e-${{ matrix.theme }}
+          path: test/shots/
+          if-no-files-found: ignore
 
   build:
     name: Bộ cài Windows
@@ -82,3 +85,37 @@ jobs:
       #     github-artifact-id: ${{ steps.upload.outputs.artifact-id }}
       #     wait-for-completion: true
       #     output-artifact-directory: signed/
+
+  build-mac:
+    name: Bộ cài macOS
+    needs: test
+    runs-on: macos-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      # Chưa có chứng thư Apple Developer: ký ad-hoc (mac.sign.identity "-") để chạy được trên chip Apple
+      - name: Build
+        env:
+          VQ_TUVI_KEY: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.VQ_TUVI_KEY || '' }}
+        run: |
+          if [ -n "$VQ_TUVI_KEY" ]; then
+            npx electron-builder --mac --publish never "-c.extraMetadata.tuvi.apiKey=$VQ_TUVI_KEY"
+          else
+            npx electron-builder --mac --publish never
+          fi
+      - name: Kiểm tra chữ ký và tính SHA256
+        run: |
+          ls -la dist/*.dmg
+          codesign --verify --deep --verbose=2 dist/mac-arm64/*.app
+          cd dist && shasum -a 256 VanQue-mac-*.dmg | tee SHA256SUMS-mac.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vanque-mac
+          if-no-files-found: error
+          path: |
+            dist/VanQue-mac-*.dmg
+            dist/SHA256SUMS-mac.txt

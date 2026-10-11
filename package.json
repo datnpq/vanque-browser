@@ -53,10 +53,21 @@
     },
     "mac": {
       "target": [
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ],
       "category": "public.app-category.reference",
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "artifactName": "VanQue-mac-${arch}.${ext}",
+      "darkModeSupport": true,
+      "sign": {
+        "identity": "-"
+      }
     },
     "linux": {
       "target": [
@@ -85,6 +96,10 @@
         "microphone",
         "location"
       ]
+    },
+    "dmg": {
+      "title": "Vân Quẻ",
+      "artifactName": "VanQue-mac-${arch}.${ext}"
     }
   },
   "devDependencies": {

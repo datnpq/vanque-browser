@@ -433,7 +433,7 @@ footer .legal { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(-
       <blockquote style="margin-top:20px">«Vân khởi quẻ thành — <span>Lý số tại tâm</span>»</blockquote>
       <p class="s">Vân Quẻ dành cho người yêu lý số: một góc yên tĩnh để tự xem lá số, gieo một quẻ, chọn một ngày đẹp — không quảng cáo, không thu thập dữ liệu. Lý số để tham khảo và chiêm nghiệm — đức năng thắng số.</p>
       <div class="ctas">
-        <a class="btn btn-primary" href="#tai-xuong" data-dl="setup"><svg><use href="#i-dl"/></svg>Tải Vân Quẻ miễn phí</a>
+        <a class="btn btn-primary dl-main" href="#tai-xuong" data-dl="setup"><svg><use href="#i-dl"/></svg>Tải Vân Quẻ miễn phí</a>
       </div>
     </div>
   </section>
@@ -443,7 +443,7 @@ footer .legal { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(-
       <div class="sec-head reveal"><p class="eyebrow">Có câu hỏi?</p><h2>Hỏi đáp</h2></div>
       <div class="faq reveal">
         <details><summary>Windows báo “Windows đã bảo vệ PC của bạn” khi mở bộ cài?</summary><p>Bộ cài chưa được ký số nên SmartScreen hiện cảnh báo với ứng dụng mới. Bấm <b>Thông tin thêm</b> rồi <b>Vẫn chạy</b> để tiếp tục. Chỉ tải Vân Quẻ từ trang này hoặc trang phát hành chính thức trên GitHub.</p></details>
-        <details><summary>Có bản cho macOS hay Linux không?</summary><p>Hiện tại Vân Quẻ phát hành cho Windows 10 và 11 (64-bit). Bản macOS và Linux đang được chuẩn bị.</p></details>
+        <details><summary>Có bản cho macOS hay Linux không?</summary><p>Có bản macOS 12 trở lên (chip Apple và Intel), hiện là bản thử nghiệm chưa ký số Apple nên lần đầu cần chuột phải → Mở. Bản Linux đang được chuẩn bị.</p></details>
         <details><summary>Bản cài đặt và bản chạy ngay khác nhau thế nào?</summary><p>Bản cài đặt tạo lối tắt trên màn hình và trong menu Start, cho chọn thư mục cài. Bản chạy ngay là một tệp .exe duy nhất, bấm là chạy, hợp để mang theo USB.</p></details>
         <details><summary>Có cần tài khoản không?</summary><p>Không. Vân Quẻ dùng được đầy đủ khi chưa đăng nhập. Nếu muốn, bạn đăng nhập bằng Google qua tuvi.work (chưa có tài khoản sẽ được tạo mới, miễn phí) để sổ lá số hiện trên mọi máy tính, trên tuvi.work và trong app tuvi.work.</p></details>
         <details><summary>Tôi đang dùng bản 1.x, dữ liệu có mất không?</summary><p>Không. Lần đầu mở bản 2.0, đánh dấu, phiên làm việc và giao diện của bản cũ được chuyển sang tự động. Dữ liệu cũ vẫn được giữ nguyên.</p></details>
@@ -468,14 +468,15 @@ footer .legal { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(-
           <span class="size" data-size="portable"></span>
           <a class="btn btn-ghost" data-dl="portable" href="#"><svg><use href="#i-dl"/></svg>Tải bản chạy ngay</a>
         </div>
-        <div class="dcol soon reveal">
-          <h3><svg><use href="#i-apple"/></svg>macOS · <svg><use href="#i-linux"/></svg>Linux</h3>
-          <p>Bản DMG cho macOS và AppImage cho Linux đang được chuẩn bị.</p>
-          <span class="size">Sắp ra mắt</span>
-          <a class="btn btn-ghost" href="https://github.com/datnpq/vanque-browser/releases" rel="noopener">Theo dõi trên GitHub</a>
+        <div class="dcol reveal" id="dlMac">
+          <h3><svg><use href="#i-apple"/></svg>macOS 12 trở lên</h3>
+          <p>Bản thử nghiệm, chưa ký số Apple. Lần đầu mở: chuột phải vào Vân Quẻ → <b>Mở</b>, hoặc Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → <b>Vẫn mở</b>.</p>
+          <span class="size">Chip Apple (M1 trở lên) hoặc Intel</span>
+          <a class="btn btn-ghost" data-dl="macArm" href="#"><svg><use href="#i-dl"/></svg>Tải cho chip Apple</a>
+          <a class="btn btn-ghost" data-dl="macIntel" href="#" style="margin-top:8px"><svg><use href="#i-dl"/></svg>Tải cho Mac Intel</a>
         </div>
       </div>
-      <p class="req">Yêu cầu: Windows 10 hoặc 11, 64-bit · khoảng 300 MB dung lượng trống · <a href="https://github.com/datnpq/vanque-browser/releases" rel="noopener">Tất cả bản phát hành</a></p>
+      <p class="req">Yêu cầu: Windows 10 hoặc 11 (64-bit), hoặc macOS 12 trở lên · khoảng 300 MB dung lượng trống · <a href="https://github.com/datnpq/vanque-browser/releases" rel="noopener">Tất cả bản phát hành</a></p>
     </div>
   </section>
 </main>
@@ -498,7 +499,7 @@ footer .legal { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(-
 <script>
 (() => {
   const REL = 'https://github.com/datnpq/vanque-browser/releases/latest/download/';
-  const FILES = { setup: 'VanQue-Setup-x64.exe', portable: 'VanQue-Portable-x64.exe' };
+  const FILES = { setup: 'VanQue-Setup-x64.exe', portable: 'VanQue-Portable-x64.exe', macArm: 'VanQue-mac-arm64.dmg', macIntel: 'VanQue-mac-x64.dmg' };
   const SIZES = { setup: '107 MB', portable: '107 MB' };
   document.querySelectorAll('[data-dl]').forEach((a) => { a.href = REL + FILES[a.dataset.dl]; });
   document.querySelectorAll('[data-size]').forEach((s) => { const v = SIZES[s.dataset.size]; s.textContent = v ? 'Dung lượng ' + v : ''; });
@@ -509,8 +510,11 @@ footer .legal { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(-
   if (isMobile || isMac || isLinux) {
     note.hidden = false;
     note.textContent = isMobile ? 'Vân Quẻ là trình duyệt cho máy tính. Hãy mở trang này trên máy Windows để tải về.'
-      : `Vân Quẻ hiện có cho Windows 10 / 11. Bản cho ${isMac ? 'macOS' : 'Linux'} đang được chuẩn bị.`;
+      : isMac ? 'Bạn đang dùng Mac: nút trên đã chuyển sang bản macOS (chip Apple). Mac Intel xem mục Tải về.'
+      : 'Vân Quẻ hiện có cho Windows và macOS. Bản Linux đang được chuẩn bị.';
   }
+  // Mac: nút chính tải bản DMG cho chip Apple
+  if (isMac) document.querySelectorAll('.dl-main').forEach((a) => { a.href = REL + FILES.macArm; a.lastChild.textContent = a.lastChild.textContent.replace('Windows', 'macOS'); });
 
   // Giao diện sáng / tối: đổi cả ảnh chụp màn hình
   const root = document.documentElement, mq = matchMedia('(prefers-color-scheme: dark)');

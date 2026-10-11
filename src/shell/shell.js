@@ -637,9 +637,15 @@ ${account.error || (account.lastSync ? 'Đã đồng bộ sổ lá số' : 'Chư
   });
 
   // ───────── Cửa sổ ─────────
+  const isMac = vq.platform === 'darwin';
+  document.body.classList.toggle('mac', isMac);
+  // macOS: gợi ý phím dùng ⌘ thay cho Ctrl
+  if (isMac) document.querySelectorAll('[title*="Ctrl+"]').forEach((el) => (el.title = el.title.replace(/Ctrl\+/g, '⌘')));
   document.querySelectorAll('.winctl button').forEach((b) => (b.onclick = () => vq.win(b.dataset.w)));
-  $('.drag').addEventListener('dblclick', () => vq.win('max'));
+  // macOS tự phóng to khi nháy đúp vùng kéo; tránh làm hai lần
+  if (!isMac) $('.drag').addEventListener('dblclick', () => vq.win('max'));
   vq.onWinState((s) => {
+    document.body.classList.toggle('fullscreen', s === 'full');
     $('[data-w=max]').textContent = s === 'max' ? '❐' : '☐';
     $('[data-w=max]').title = s === 'max' ? 'Khôi phục' : 'Phóng to';
     if (s !== 'full') document.body.classList.remove('html-fs');

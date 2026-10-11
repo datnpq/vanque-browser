@@ -16,6 +16,7 @@ if (process.env.VQ_AUTOTEST) app.setPath('userData', path.join(require('os').tmp
 // Một phiên bản duy nhất: mở lần hai → đưa cửa sổ cũ lên và mở các URL truyền vào
 if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 
+const isMac = process.platform === 'darwin';
 let win = null, store = null, downloads = null, shield = null, account = null;
 const send = (ch, payload) => { if (win && !win.isDestroyed()) win.webContents.send(ch, payload); };
 
@@ -31,7 +32,9 @@ function createWindow() {
   });
   win = new BrowserWindow({
     ...(visible ? ws.bounds : { width: 1360, height: 880 }), minWidth: 820, minHeight: 560,
-    frame: false, show: false, title: 'Vân Quẻ',
+    // macOS giữ ba nút đèn giao thông gốc; Windows/Linux dùng nút tự vẽ trên thanh thẻ
+    ...(isMac ? { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 12, y: 14 } } : { frame: false }),
+    show: false, title: 'Vân Quẻ',
     backgroundColor: nativeTheme.shouldUseDarkColors && store.get('settings').theme !== 'light' ? '#14110c' : '#f4ecd9',
     icon: path.join(__dirname, 'shell', 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, webviewTag: true, spellcheck: false },
@@ -113,7 +116,11 @@ app.whenReady().then(() => {
   ipcMain.on('permission-reply', (_e, r) => shield.replyPermission(r || {}));
   ipcMain.handle('download-action', (_e, act, id) => downloads.action(act, id));
 
-  Menu.setApplicationMenu(null);
+  // macOS cần menu ứng dụng để Cmd+C/V/X/A/Z hoạt động trong ô nhập; không gán phím trùng bản đồ phím tắt (Cmd+H, Cmd+M, Cmd+W…)
+  Menu.setApplicationMenu(isMac ? Menu.buildFromTemplate([
+    { label: app.name, submenu: [{ role: 'about', label: 'Giới thiệu Vân Quẻ' }, { type: 'separator' }, { role: 'hideOthers', label: 'Ẩn ứng dụng khác' }, { role: 'unhide', label: 'Hiện tất cả' }, { type: 'separator' }, { role: 'quit', label: 'Thoát Vân Quẻ' }] },
+    { label: 'Sửa', submenu: [{ role: 'undo', label: 'Hoàn tác' }, { role: 'redo', label: 'Làm lại' }, { type: 'separator' }, { role: 'cut', label: 'Cắt' }, { role: 'copy', label: 'Sao chép' }, { role: 'paste', label: 'Dán' }, { role: 'pasteAndMatchStyle', label: 'Dán giữ kiểu' }, { role: 'selectAll', label: 'Chọn tất cả' }] },
+  ]) : null);
   if (process.env.VQ_AUTOTEST) require('../test/autotest.js')({ getWin: () => win, store, send, account });
   createWindow();
   account.startAuto();

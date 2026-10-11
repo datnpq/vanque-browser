@@ -8,7 +8,7 @@
 
 <img src="src/shell/icon.png" width="120" alt="Vân Quẻ"/>
 
-[**Tải cho Windows**](https://vanque.pages.dev) · [Bản phát hành](https://github.com/datnpq/vanque-browser/releases/latest) · [Đóng góp](CONTRIBUTING.md)
+[**Tải cho Windows & macOS**](https://vanque.pages.dev) · [Bản phát hành](https://github.com/datnpq/vanque-browser/releases/latest) · [Đóng góp](CONTRIBUTING.md)
 
 </div>
 
@@ -67,7 +67,7 @@ npm test             # kiểm tra đơn vị: lõi lý số, phím tắt, kho d�
 npm run e2e          # kiểm thử end-to-end trên chính ứng dụng (ảnh + báo cáo trong test/shots/)
 npm run e2e:dark     # như trên, giao diện tối
 npm run pack         # bản chạy không cần cài (dist/win-unpacked)
-npm run dist         # bộ cài NSIS + portable (Windows), DMG (macOS), AppImage (Linux)
+npm run dist         # bộ cài NSIS + portable (Windows), DMG chip Apple + Intel (macOS, phải build trên Mac), AppImage (Linux)
 ```
 
 ## 🏗 Kiến trúc

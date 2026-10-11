@@ -14,6 +14,7 @@
 - User-Agent còn lộ "VânQuẻBrowser/2.0.0" với trang web; nay bỏ đúng mục mang số phiên bản ứng dụng.
 
 ### Mới
+- **Bản macOS** (12 trở lên, chip Apple và Intel, tệp DMG), build trên GitHub Actions. Chưa ký số Apple: lần đầu mở cần chuột phải → Mở. Ba nút cửa sổ gốc của macOS, menu Sửa để Cmd+C/V/X/A/Z hoạt động, Cmd+[ / Cmd+] để lùi / tiến, gợi ý phím hiện ⌘.
 - Sổ lá số trên trang Tử Vi: lưu khi bấm "Lập lá số", mở lại / xóa (lưu trên máy). Hồ sơ lý số cũ được đưa vào sổ một lần.
 
 ## 2.0.0 — 2026-10-10 · Tái phát triển toàn diện
