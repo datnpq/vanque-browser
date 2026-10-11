@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       - run: npm test
@@ -30,7 +30,7 @@ jobs:
       matrix: { theme: [light, dark] }
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       - run: node test/e2e.js ${{ matrix.theme }}
@@ -49,7 +49,7 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       # Khóa kết nối tuvi.work chỉ có ở bản phát hành chính thức (bí mật VQ_TUVI_KEY), không nằm trong mã nguồn.
@@ -92,7 +92,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       # Chưa có chứng thư Apple Developer: ký ad-hoc (mac.identity "-") để chạy được trên chip Apple
