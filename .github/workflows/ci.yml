@@ -35,7 +35,7 @@ jobs:
       - run: npm ci
       - run: node test/e2e.js ${{ matrix.theme }}
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-${{ matrix.theme }}
           path: test/shots/
@@ -71,7 +71,7 @@ jobs:
           cp dist/*Setup*.exe out/VanQue-Setup-x64.exe
           find dist -maxdepth 1 -name '*.exe' ! -name '*Setup*' -exec cp {} out/VanQue-Portable-x64.exe \;
           cd out && sha256sum *.exe > SHA256SUMS.txt && cat SHA256SUMS.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         id: upload
         with: { name: vanque-windows, path: out/, if-no-files-found: error }
 
@@ -112,7 +112,7 @@ jobs:
           ls -la dist/*.dmg
           codesign --verify --deep --verbose=2 dist/mac-arm64/*.app
           cd dist && shasum -a 256 VanQue-mac-*.dmg | tee SHA256SUMS-mac.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: vanque-mac
           if-no-files-found: error
