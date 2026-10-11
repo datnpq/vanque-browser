@@ -90,14 +90,12 @@ jobs:
     name: Bộ cài macOS
     needs: test
     runs-on: macos-latest
-    env:
-      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
-      # Chưa có chứng thư Apple Developer: ký ad-hoc (mac.sign.identity "-") để chạy được trên chip Apple
+      # Chưa có chứng thư Apple Developer: ký ad-hoc (mac.identity "-") để chạy được trên chip Apple
       - name: Build
         env:
           VQ_TUVI_KEY: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.VQ_TUVI_KEY || '' }}

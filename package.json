@@ -65,9 +65,8 @@
       "icon": "build/icon.png",
       "artifactName": "VanQue-mac-${arch}.${ext}",
       "darkModeSupport": true,
-      "sign": {
-        "identity": "-"
-      }
+      "identity": "-",
+      "hardenedRuntime": false
     },
     "linux": {
       "target": [
