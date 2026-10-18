@@ -104,7 +104,7 @@
   "devDependencies": {
     "@fontsource/be-vietnam-pro": "^5.3.0",
     "@fontsource/phudu": "^5.3.0",
-    "electron": "^44.7.0",
+    "electron": "^44.7.2",
     "electron-builder": "^26.15.3"
   },
   "tuvi": {
